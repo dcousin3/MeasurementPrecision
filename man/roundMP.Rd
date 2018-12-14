@@ -4,24 +4,25 @@
 \alias{roundMP}
 \title{Measurement Precision Toolkit}
 \usage{
-roundMP        (x, fct, deltax, ...)
-roundMP.mean   (x, deltax, ...)
-roundMP.sd     (x, deltax, ...)
-roundMP.var    (x, deltax, ...)
-roundMP.semean (x, deltax, ...)
-roundMP.ci     (x, deltax, gamma, ...)
-roundMP.cohen.d(x, deltax, mu0, ...)
-roundMP.t.test (x, deltax, mu0, ...)
+roundMP         (x, fct, deltax, ...)
+roundMP.mean    (x, deltax, ...)
+roundMP.sd      (x, deltax, ...)
+roundMP.var     (x, deltax, ...)
+roundMP.semean  (x, deltax, ...)
+roundMP.ci      (x, deltax, gamma, ...)
+roundMP.cohen.d (x, deltax, mu0, ...)
+roundMP.t.test  (x, deltax, mu0, ...)
 roundMP.meandiff(x, y, deltax, ...)
 roundMP.cohen.d (x, y, deltax, ...)
 roundMP.t.test  (x, y, deltax, ...)
-roundMP.sdpool (x, y, ..., deltax, ...)
-roundMP.F.ratio(x, y, ..., deltax, ...)
+roundMP.sdpool  (x, y, ..., deltax, ...)
+roundMP.F.ratio (x, y, ..., deltax, ...)
 }
 \arguments{
 \item{x}{a vector of numbers;}
 
-\item{fct}{the summary statistic function between quotes: mean, sd, semean, cohen.d, ci, var, t.test, meandiff, F.ratio, sdpool;}
+\item{fct}{the summary statistic function between quotes: mean, sd,
+semean, cohen.d, ci, var, t.test, meandiff, F.ratio, sdpool;}
 
 \item{deltax}{the precision of the instrument;}
 
@@ -33,26 +34,32 @@ roundMP.F.ratio(x, y, ..., deltax, ...)
 
 \item{...}{(optional) any number of vectors for multivariate statistics;}
 
-\item{gamma}{the coverage level for confidence intervals (default if omitted 95\%);}
+\item{gamma}{the coverage level for confidence intervals (default if 
+omitted 95\%);}
 
-\item{mu0}{for the one-sample cohen.d and one-sample t.test, provide the mean of reference;}
+\item{mu0}{for the one-sample cohen.d and one-sample t.test, provide 
+the mean of reference;}
 }
 \value{
-the summary statistic and its value rounded based on the measurement precision
+the summary statistic and its value rounded based 
+                   on the measurement precision
 }
 \description{
 The measurement precision toolkit returns the value of descritive statistics
 rounded according to the measurement precision. If measurements are performed 
-with a certain precision, called delta_x, then the statistics derived from those 
-measurements cannot have more than a certian precisions, computed according to 
-the formulas underlying those statistics. 
-The descriptive statistics for which an expression of the precision is known are:
-For univariate statistics: mean, sd (standard deviation), semean (standard error of the mean)
-ci (confidence interval), cohen.d (one-sample Cohen's d, d_1), var (variance), and 
+with a certain precision, called delta_x, then the statistics derived from  
+those measurements cannot have more than a certian precisions, computed 
+according to the formulas underlying those statistics. 
+The descriptive statistics for which an expression of the precision is known
+are: 
+For univariate statistics: mean, sd (standard deviation),
+semean (standard error of the mean), ci (confidence interval),
+cohen.d (one-sample Cohen's d, d_1), var (variance), and 
 t.test (one-sample t-test);
-For bivariate statistics: cohen.d (two-sample Cohen's d, d_p), meandiff (mean difference),
-and t.test (two-sample t-test);
-For multivariables: sdpool (pooled standard deviation) and F.ratio (one-way F test).
+For bivariate statistics: cohen.d (two-sample Cohen's d, d_p), meandiff 
+(mean difference), and t.test (two-sample t-test);
+For multivariables: sdpool (pooled standard deviation) and F.ratio 
+(one-way F test).
 }
 \details{
 These functions returns a summary statistic which is rounded
