@@ -1,0 +1,14 @@
+citHeader("To cite the MeasurementPrecision package in publications use:")
+citEntry(entry="Manual",
+         title = "Measurement Precision toolkit. (Version 0.1)",
+         author = "Denis Cousineau",
+         Organization = "Université d'Ottawa",        
+         address      = "Ottawa, Canada",
+         year         = 2018,
+         note         = "R package version 0.1",
+         url          = "http://.../...",
+         textVersion = 
+         paste("Cousineau, D. (2018)", 
+               "Measurement Precision toolkit. (Version 0.1)",
+               "Université d'Ottawa. Ottawa, Canada")
+               )
