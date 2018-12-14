@@ -1,0 +1,13 @@
+Package: MeasurementPrecision
+Type: Package
+Title: Measurement Precision Toolkit
+Description: Measurement Precision toolkit for R. This repository contains source code and a package suitable for R 3.0 and above. It computes a few basic statistics and round them accordind to the  measurement instrument (deltax). See Cousineau, D. (submitted) How many decimals? Rounding descriptive statistics based on measurement precision for the formal mathematical derivations of the results.
+Version: 0.1
+Date: 2018-12-14
+License: GPL-3
+Author: Denis Cousineau <denis.cousineau@uottawa.ca>
+Maintainer: Denis Cousineau <denis.cousineau@uottawa.ca>
+Depends: R (>= 3.0.0)
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.1.1
