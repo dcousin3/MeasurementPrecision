@@ -11,17 +11,30 @@ roundMP.meandiff <- function(x, y = NULL, deltax = NULL, assumptions = NULL, ver
 
     # statistic computations
     dmn        = mean(x)-mean(y)
-    pr         = 2 * deltax
+    ns         = c(length(x), length(y))
+    nh         = 1/mean(1/ns)
+    sds        = c(sd(x), sd(y))
+    sdp        = sqrt(sum((ns - 1) * sds^2)/(sum(ns) - length(ns))) 
 
     # precision computations
-    pr         = pr + pr/10000 # avoid rounding errors
-    rd         = round(dmn, -log10(pr)+0.5)
+    # a. Extrinsinc precision
+    prEP       = sqrt(2) * sdp / sqrt(nh) * 1.0001 # avoids rounding error
+    rdEP       = round(dmn, -log10(prEP)+0.5)
+    # b. Worst-case intrinsinc precision
+    prWC       = 2 * deltax * 1.0001 # avoids rounding error
+    rdWC       = round(dmn, -log10(prWC)+0.5)
     assumptext = "assumption-free"
+    # c. Best-case instrinsinc precision
+    prBC       = sqrt(2) * deltax / sqrt(nh)
+    rdBC       = round(dmn, -log10(prBC)+0.5)
+    # d. Middle-ground intrinsinc precision
+    prMG       = (prWC + prBC)/2
+    rdMG       = round(dmn, -log10(prMG)+0.5)
 
     # output results
-    if (verbose) MP.showVerbose("meandiff", dmn, deltax, pr, rd, assumptext)
-    return(setNames( c(dmn,deltax,pr,rd),
-        c("meandiff","delta_x","precision","rounded mean")
-    ))
+    if (verbose) MP.showVerbose("meandiff", dmn, deltax, prEP, rdEP, prWC, rdWC, prBC, rdBC, prMG, rdMG, assumptext)
+    return(setNames( c(dmn, rdEP, rdWC, rdBC, rdMG),
+        c("meandiff","EXrounded", "WCrounded", "BCrounded","MGrounded") ) 
+    )
 }
 

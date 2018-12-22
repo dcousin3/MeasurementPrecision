@@ -8,14 +8,25 @@ roundMP.mean <- function(x, deltax = NULL, assumptions = NULL, verbose = FALSE) 
     x          = MP.flatten(x)
     # statistic computations
     mn         = mean(x)
+
     # precision computations
-    pr         = deltax 
-    pr         = pr + pr/10000 # avoid rounding errors
-    rd         = round(mn, -log10(pr)+0.5)
+    # a. Extrinsinc precision
+    prEP       = sd(x)/sqrt(length(x))
+    rdEP       = round(mn, -log10(prEP)+0.5)
+    # b. Worst-case intrinsinc precision
+    prWC       = deltax * 1.0001 # avoids rounding error
+    rdWC       = round(mn, -log10(prWC)+0.5)
     assumptext = "assumption-free"
+    # c. Best-case instrinsinc precision
+    prBC       = deltax / sqrt(length(x)) * 1.0001 # avoids rounding error
+    rdBC       = round(mn, -log10(prBC)+0.5)
+    # d. Middle-ground intrinsinc precision
+    prMG       = (prWC + prBC)/2
+    rdMG       = round(mn, -log10(prMG)+0.5)
+    
     # output results
-    if (verbose) MP.showVerbose("mean", mn, deltax, pr, rd, assumptext)
-    return(setNames( c(mn,deltax,pr,rd),
-        c("mean","delta_x","precision","rounded mean") ) 
+    if (verbose) MP.showVerbose("mean", mn, deltax, prEP, rdEP, prWC, rdWC, prBC, rdBC, prMG, rdMG, assumptext)
+    return(setNames( c(mn, rdEP, rdWC, rdBC, rdMG),
+        c("mean","EXrounded", "WCrounded", "BCrounded","MGrounded") ) 
     )
 }

@@ -14,20 +14,31 @@ roundMP.ci <- function(x, deltax = NULL, gamma = 0.95, assumptions = TRUE, verbo
     se             = sd / sqrt(n)
     tc             = qt(1/2 + gamma/2, n-1)
     ci             = c(mn-tc*se, mn+tc*se)
+    
     # precision computations
+    # a. Extrinsinc precision
+    prEP       = sd/sqrt(n) * sqrt(1+ tc^2 / (n-1) )
+    rdEP       = round(ci, -log10(prEP)+0.5)
+    # b. Worst-case intrinsinc precision
     if (assumptions) {
-        pr         = deltax * (1 + tc * (n/(n-1)) * sqrt(2/pi) / sqrt(n) )
+        prWC       = deltax * (1 + tc * (n/(n-1)) * sqrt(2/pi) / sqrt(n) )
         assumptext = "based on the normality assumption"
     } else {
-        pr         = deltax * (1 + tc * (1/(n-1)) * MP.absoluteCentralMoment(x) / se )
+        prWC       = deltax * (1 + tc * (1/(n-1)) * MP.absoluteCentralMoment(x) / se )
         assumptext = "assumption-free"
     }
-    pr             = pr + pr/10000 # avoid rounding errors
-    rd             = round(ci, -log10(pr)+0.5)
+    rdWC           = round(ci, -log10(prWC * 1.0001 )+0.5)
+    # c. Best-case instrinsinc precision
+    prBC       = deltax/sqrt(n) * sqrt(1+ tc^2 / (n-1) )
+    rdBC       = round(ci, -log10(prBC)+0.5)
+    # d. Middle-ground intrinsinc precision
+    prMG       = (prWC + prBC)/2
+    rdMG       = round(ci, -log10(prMG)+0.5)
+
     # output results
-    if (verbose) MP.showVerbose("ci", ci, deltax, pr, rd, assumptext)
-    return(setNames( c(ci,deltax,pr,rd),
-        c("ci.low","ci.up","delta_x","precision","rounded ci.low","rounded ci.up")
-    ))
+    if (verbose) MP.showVerbose("ci", c(ci[1]," ",ci[2]), deltax, prEP, c(rdEP[1]," ",rdEP[2]), prWC, c(rdWC[1]," ",rdWC[2]), prBC, c(rdBC[1]," ",rdBC[2]), prMG, c(rdMG[1]," ",rdMG[2]), assumptext)
+    return(setNames( c(ci, rdEP, rdWC, rdBC, rdMG),
+        c("ci-low","ci-high","EXrounded-lo", "EXrounded-hi", "WCrounded-lo","WCrounded-hi","BCrounded-lo","BCrounded-hi","MGrounded-lo","MGrounded-hi") ) 
+    )
 }
 

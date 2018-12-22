@@ -1,4 +1,6 @@
 ## FRATIO = MULTIVARIATE ################################
+# the best-case intrinsinc scenario remains to be found
+# as well as the standard error of an F ratio
 
 #' @export
 roundMP.F.ratio <- function(..., deltax = NULL, assumptions = TRUE, verbose = FALSE) {
@@ -28,8 +30,12 @@ roundMP.F.ratio <- function(..., deltax = NULL, assumptions = TRUE, verbose = FA
     }
     sse        = sum(ss)
     fratio     = (ssa / (length(ns)-1)) / (sse/(sum(ns)-length(ns)))
-
+    
     # precision computations
+    # a. Extrinsinc precision
+    prEP       = NA
+    rdEP       = NA
+    # b. Worst-case intrinsinc precision
     fsum       = 1:length(ns)
     for (i in 1:length(ns)) {
         fsum[i]= sum(abs(ssa/sse*(args[[i]]-mns[i]) -(mns[i]-GM) ))
@@ -37,12 +43,20 @@ roundMP.F.ratio <- function(..., deltax = NULL, assumptions = TRUE, verbose = FA
     tsum       = sum(fsum) 
     pr         = tsum * 2/(length(ns)-1) * deltax /sdp^2
     assumptext = "assumption-free"
-    pr         = pr + pr/10000 # avoid rounding errors
-    rd         = round(fratio, -log10(pr)+0.5)
+    prWC       = pr * 1.00001 # avoid rounding errors
+    rdWC       = round(fratio, -log10(prWC)+0.5)
+    # c. Best-case instrinsinc precision
+    prBC       = NA
+    rdBC       = NA
+    # d. Middle-ground intrinsinc precision
+    prMG       = (prWC + prBC)/2
+    rdMG       = round(fratio, -log10(prMG)+0.5)
+
+        
     # output results
-    if (verbose) MP.showVerbose("fratio", fratio, deltax, pr, rd, assumptext)
-    return(setNames( c(fratio,deltax,pr,rd),
-        c("fratio","delta_x","precision","rounded fratio")
-    ))
+    if (verbose) MP.showVerbose("F.ratio", fratio, deltax, prEP, rdEP, prWC, rdWC, prBC, rdBC, prMG, rdMG, assumptext)
+    return(setNames( c(fratio, rdEP, rdWC, rdBC, rdMG),
+        c("mean","EXrounded", "WCrounded", "BCrounded","MGrounded") ) 
+    )
 }
 

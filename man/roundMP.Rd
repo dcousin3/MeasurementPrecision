@@ -48,7 +48,7 @@ the summary statistic and its value rounded based
 The measurement precision toolkit returns the value of descritive statistics
 rounded according to the measurement precision. If measurements are performed 
 with a certain precision, called delta_x, then the statistics derived from  
-those measurements cannot have more than a certian precisions, computed 
+those measurements cannot have more than a certain precisions, computed 
 according to the formulas underlying those statistics. 
 The descriptive statistics for which an expression of the precision is known
 are: 
@@ -59,7 +59,16 @@ t.test (one-sample t-test);
 For bivariate statistics: cohen.d (two-sample Cohen's d, d_p), meandiff 
 (mean difference), and t.test (two-sample t-test);
 For multivariables: sdpool (pooled standard deviation) and F.ratio 
-(one-way F test).
+(only worst-case scenario).
+Four scenarios are considered: 
+- Extrinsinc precision: precision is estimated
+according to a population point of view (uses standard error of the statistic);
+- Intrinsinc precision (worst-case): precision is estimated assuming
+systematic measurement errors and the maximal impact it can have on the statistic;
+- Intrinsinc precision (best-case): precision is estimated assuming non-
+systematic measurement errors and the root-mean-squared impact in can have;
+- a Middle-ground precision is provided which assumes quasi-systematic
+measurement errors weighting equally systematic and non-systematic scenarios.
 }
 \details{
 These functions returns a summary statistic which is rounded

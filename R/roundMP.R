@@ -4,7 +4,7 @@
 #' The measurement precision toolkit returns the value of descritive statistics
 #' rounded according to the measurement precision. If measurements are performed 
 #' with a certain precision, called delta_x, then the statistics derived from  
-#' those measurements cannot have more than a certian precisions, computed 
+#' those measurements cannot have more than a certain precisions, computed 
 #' according to the formulas underlying those statistics. 
 #' The descriptive statistics for which an expression of the precision is known
 #' are: 
@@ -15,7 +15,16 @@
 #' For bivariate statistics: cohen.d (two-sample Cohen's d, d_p), meandiff 
 #' (mean difference), and t.test (two-sample t-test);
 #' For multivariables: sdpool (pooled standard deviation) and F.ratio 
-#' (one-way F test).
+#' (only worst-case scenario).
+#' Four scenarios are considered: 
+#' - Extrinsinc precision: precision is estimated
+#' according to a population point of view (uses standard error of the statistic);
+#' - Intrinsinc precision (worst-case): precision is estimated assuming
+#' systematic measurement errors and the maximal impact it can have on the statistic;
+#' - Intrinsinc precision (best-case): precision is estimated assuming non-
+#' systematic measurement errors and the root-mean-squared impact in can have;
+#' - a Middle-ground precision is provided which assumes quasi-systematic
+#' measurement errors weighting equally systematic and non-systematic scenarios.
 #'
 #' @param x           a vector of numbers;
 #' @param y           (optional) a second vector for bivariate statistics;
@@ -86,15 +95,6 @@
 #'
 
 
-#########################################################
-# documentation meant for roxygen2
-#########################################################
-
-# yaurai aussi: usage (des exemples) arguments (les param?es)
-
-
-
-
 
 # the code is long because it can be run with vectors, 
 # column matrices or data.frame with a single column...
@@ -153,16 +153,25 @@ roundMP <- function(
 #########################################################
 
 # show some description of the results
-MP.showVerbose <- function(fct, mn, deltax, pr, rd, assumptxt) {
-    s1<-function() {rep(" ",12-nchar(fct))}
+MP.showVerbose <- function(fct, mn, deltax, prEP, rdEP, prWC, rdWC, prBC, rdBC, prMG, rdMG, assumptxt) {
+    s1<-function() {rep(" ",18-nchar(fct))}
     s2<-function() {rep(" ",5)}
-    cat(rep("-",60),"\n",sep="")
-    cat(fct," of input is:         ",   s1(),mn,"\n",sep="")
-    cat("delta_x of instrument is:    ",s2(),deltax,"\n",sep="")
-    cat("precision for ",fct," is:    ",s1(), pr,"\n",sep="")
-    cat("rounded ",fct," of input is: ",s1(),rd,"\n",sep="")
-    cat("this results is ", assumptxt,".\n",sep="")
-    cat(rep("-",60),"\n",sep="")
+    cat(rep("-",70),"\n",sep="")
+    cat(fct," of input is:             ",   s1(),mn,"\n",sep="")
+    cat("delta_x of instrument is:              ",s2(),deltax,"\n",sep="")
+    cat("EXTRINSINC PRECISION:  (this result is based on the standard error of the",fct,")\n")
+    cat("  - precision for ",fct," is:    ",s1(), prEP,"\n",sep="")
+    cat("  - rounded ",fct," of input is: ",s1(),rdEP,"\n",sep="")
+    cat("WORST-CASE INTRINSINC PRECISION: (this result is", assumptxt,")","\n")
+    cat("  - precision for ",fct," is:    ",s1(), prWC,"\n",sep="")
+    cat("  - rounded ",fct," of input is: ",s1(),rdWC,"\n",sep="")
+    cat("BEST-CASE INTRINSINC PRECISION: (this result is", assumptxt,")","\n")
+    cat("  - precision for ",fct," is:    ",s1(), prBC,"\n",sep="")
+    cat("  - rounded ",fct," of input is: ",s1(),rdBC,"\n",sep="")
+    cat("MIDDLE-GROUND PRECISION: (average of the two intrinsinc precision)\n")
+    cat("  - precision for ",fct," is:    ",s1(), prMG,"\n",sep="")
+    cat("  - rounded ",fct," of input is: ",s1(),rdMG,"\n",sep="")
+    cat(rep("-",70),"\n",sep="")
 }
 
 # the absolute central moment of order 1

@@ -22,10 +22,16 @@ roundMP.t.test <- function(x, y = NULL, mu0 = NULL, deltax = NULL, assumptions =
     sdp        = sqrt(sum((ns - 1) * sds^2)/(sum(ns) - length(ns))) 
     nh         = 1/mean(1/ns)
     ttest      = dmn /(sqrt(ngrp) * sdp / sqrt(nh) ) 
+    eta        <- sum(ns) - length(ns)
+    J          <- if (eta>300) 1 else gamma(eta/2) / (sqrt(eta/2) * gamma((eta-1)/2) )
     
     # precision computations
+    # a. Extrinsinc precision
+    prEP       = sqrt(eta/(eta-2)* (1+ ttest^2) - ttest^2/J^2)
+    rdEP       = round(ttest, -log10(prEP * 1.0001 )+0.5)
+    # b. Worst-case intrinsinc precision
     if (assumptions) {
-        pr         = sqrt(ngrp) * sqrt(nh) * deltax / sdp
+        prWC       = sqrt(ngrp) * sqrt(nh) * deltax / sdp
         assumptext = "based on the normality assumption, an absence of effect and the homogeneity of variance if two groups"
     } else {
         d          = abs(dmn)/sdp # cohen's d
@@ -34,15 +40,21 @@ roundMP.t.test <- function(x, y = NULL, mu0 = NULL, deltax = NULL, assumptions =
         for (i in 1:ngrp) 
             fsum[i]= sum(abs(1/ns[i] -1/(sum(ns)-ngrp) * (unlist(dta[i])-mean(unlist(dta[i])))/sd(unlist(dta[i]))*d))
         tsum       = sum(fsum) 
-        pr         = tsum * deltax / (sqrt(ngrp) * sdp / sqrt(nh) )
+        prWC       = tsum * deltax / (sqrt(ngrp) * sdp / sqrt(nh) )
         assumptext = "assumption-free"
     }
-    pr             = pr + pr/10000 # avoid rounding errors
-    rd             = round(ttest, -log10(pr)+0.5)
+    rdWC           = round(ttest, -log10(prWC * 1.0001 )+0.5)
+    # c. Best-case instrinsinc precision
+    prBC       = deltax / sdp
+    rdBC       = round(ttest, -log10(prBC * 1.0001 )+0.5)
+    # d. Middle-ground intrinsinc precision
+    prMG       = (prWC + prBC)/2
+    rdMG       = round(ttest, -log10(prMG)+0.5)
+
     # output results
-    if (verbose) MP.showVerbose("t.test", ttest, deltax, pr, rd, assumptext)
-    return(setNames( c(ttest,deltax,pr,rd),
-        c("t.test","delta_x","precision","rounded t.test")
-    ))
+    if (verbose) MP.showVerbose("t.test", ttest, deltax, prEP, rdEP, prWC, rdWC, prBC, rdBC, prMG, rdMG, assumptext)
+    return(setNames( c(ttest, rdEP, rdWC, rdBC, rdMG),
+        c("t.test","EXrounded", "WCrounded", "BCrounded","MGrounded") ) 
+    )
 }
 

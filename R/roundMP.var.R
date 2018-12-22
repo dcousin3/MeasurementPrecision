@@ -9,20 +9,31 @@ roundMP.var <- function(x, deltax = NULL, assumptions = TRUE, verbose = FALSE) {
     # statistic computations
     var            = var(x)
     n              = length(x)
+
     # precision computations
+    # a. Extrinsinc precision
+    prEP       = sqrt(2 /(n-1)) * var
+    rdEP       = round(var, -log10(prEP)+0.5)
+    # b. Worst-case intrinsinc precision
     if (assumptions) {
-        pr         = (2*n/(n-1)) * deltax * sqrt(2/pi) * sqrt(var)
+        prWC         = (2*n/(n-1)) * deltax * sqrt(2/pi) * sqrt(var)
         assumptext = "based on the normality assumption"
     } else {
-        pr         = (2*n/(n-1)) * deltax * MP.absoluteCentralMoment(x)
+        prWC         = (2*n/(n-1)) * deltax * MP.absoluteCentralMoment(x)
         assumptext = "assumption-free"
     }
-    pr             = pr + pr/10000 # avoid rounding errors
-    rd             = round(var, -log10(pr)+0.5)
+    rdWC           = round(var, -log10(prWC * 1.0001 )+0.5)
+    # c. Best-case instrinsinc precision
+    prBC       = 2 / sqrt(n-1) * deltax
+    rdBC       = round(var, -log10(prBC)+0.5)
+    # d. Middle-ground intrinsinc precision
+    prMG       = (prWC + prBC)/2
+    rdMG       = round(var, -log10(prMG)+0.5)
+
     # output results
-    if (verbose) MP.showVerbose("var", var, deltax, pr, rd, assumptext)
-    return(setNames( c(var,deltax,pr,rd),
-        c("var","delta_x","precision","rounded var")
-    ))
+    if (verbose) MP.showVerbose("var", var, deltax, prEP, rdEP, prWC, rdWC, prBC, rdBC, prMG, rdMG, assumptext)
+    return(setNames( c(var, rdEP, rdWC, rdBC, rdMG),
+        c("var","EXrounded", "WCrounded", "BCrounded","MGrounded") ) 
+    )
 }
 

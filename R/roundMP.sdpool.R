@@ -20,22 +20,32 @@ roundMP.sdpool <- function(..., deltax = NULL, assumptions = TRUE, verbose = FAL
     sdp            = sqrt(sum((ns - 1) * sds^2)/(sum(ns) - length(ns))) 
 
     # precision computations
+    # a. Extrinsinc precision
+    prEP           = sdp/sqrt(2*(sum(ns)-length(ns)))
+    rdEP           = round(sdp, -log10(prEP)+0.5)
+    # b. Worst-case intrinsinc precision
     if (assumptions) {
-        pr         = sum(ns)/(sum(ns)-length(ns)) * deltax * sqrt(2/pi)  
+        prWC       = sum(ns)/(sum(ns)-length(ns)) * deltax * sqrt(2/pi)  
         assumptext = "based on the normality assumption and the homogeneity of variance across groups"
     } else {
         fsum       = 1:length(ns)
         for (i in 1:length(ns)) 
             fsum[i]= ns[i] * MP.absoluteCentralMoment(unlist(args[i]))
         tsum       = sum(fsum) 
-            pr         = tsum * 1/(sum(ns)-length(ns)) * deltax /sdp
+        prWC       = tsum * 1/(sum(ns)-length(ns)) * deltax /sdp
         assumptext = "assumption-free"
     }
-    pr             = pr + pr/10000 # avoid rounding errors
-    rd             = round(sdp, -log10(pr)+0.5)
+    rdWC           = round(sdp, -log10(prWC * 1.0001 )+0.5)
+    # c. Best-case instrinsinc precision
+    prBC           = deltax / sqrt(sum(ns) - length(ns))
+    rdBC           = round(sdp, -log10(prBC * 1.0001 )+0.5)    
+    # d. Middle-ground intrinsinc precision
+    prMG           = (prWC + prBC)/2
+    rdMG           = round(sdp, -log10(prMG)+0.5)
+
     # output results
-    if (verbose) MP.showVerbose("sdpool", sdp, deltax, pr, rd, assumptext)
-    return(setNames( c(sdp,deltax,pr,rd),
-        c("sdpool","delta_x","precision","rounded sdpool")
-    ))
+    if (verbose) MP.showVerbose("sdpool", sdp, deltax, prEP, rdEP, prWC, rdWC, prBC, rdBC, prMG, rdMG, assumptext)
+    return(setNames( c(sdp, rdEP, rdWC, rdBC, rdMG),
+        c("sdpool","EXrounded", "WCrounded", "BCrounded","MGrounded") ) 
+    )
 }
