@@ -11,5 +11,5 @@ for the formal mathematical derivations of the results and an explanation of the
 
 You can install this library on you computer if the library devtools is installed with:
 
-devtools::install_github("dcousin3/MeasurementPrecision")
+devtools::install_github("dcousin3/MeasurementPrecision")<\br>
 library(MeasurementPrecision)
