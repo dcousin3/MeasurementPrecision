@@ -11,13 +11,13 @@ roundMP.cohen.d <- function(deltax = NULL, mu0 = NULL, assumptions = TRUE, verbo
         if(MP.rowLengths(dta) == 1) {
             if(is.null(mu0)) stop ("for one-sample d_1, you must provide a value to mu0")
             ngrp <- 1
-            x1   <- dta
+            x1   <- dta[[1]]
             y1   <- mu0
             y2   <- NULL
         } else {
             ngrp     <- 2
-            x1       <- dta[,1]
-            y1 <- y2 <- dta[,2]
+            x1       <- dta[[1]]
+            y1 <- y2 <- dta[[2]]
         }
         dmn            <- mean(x1)-mean(y1)
         args           <- list(x1,y2)

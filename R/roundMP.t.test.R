@@ -11,13 +11,13 @@ roundMP.t.test <- function(deltax = NULL, mu0 = NULL, assumptions = TRUE, verbos
         if(MP.rowLengths(dta) == 1) {
             if(is.null(mu0)) stop ("for one-sample t-test, you must provide a value to mu0")
             ngrp <- 1
-            x1   <- dta
+            x1   <- dta[[1]]
             y1   <- mu0
             y2   <- NULL
         } else {
             ngrp     <- 2
-            x1       <- dta[,1]
-            y1 <- y2 <- dta[,2]
+            x1       <- dta[[1]]
+            y1 <- y2 <- dta[[2]]
         }
         dmn            <- mean(x1)-mean(y1)
         args           <- list(x1,y2)
@@ -56,7 +56,7 @@ roundMP.t.test <- function(deltax = NULL, mu0 = NULL, assumptions = TRUE, verbos
         assumptext <- "based on the normality assumption, an absence of effect and the homogeneity of variance if two groups"
     } else {
         d          <- abs(dmn)/sdp # cohen's d
-        dta        <- list(x,y)
+        #dta        <- list(x,y)
         fsum       <- 1:ngrp
         for (i in 1:ngrp) 
             fsum[i]<- sum(abs(1/ns[i] -1/(sum(ns)-ngrp) * (unlist(dta[i])-mean(unlist(dta[i])))/sd(unlist(dta[i]))*d))

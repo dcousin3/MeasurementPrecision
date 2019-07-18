@@ -68,7 +68,7 @@
 #'
 #' # get the rounded mean assuming that the instrument is precise to +or- 1
 #' roundMP.mean(fromData = x1, deltax = 1)
-#' roundMP.mean(fromStatistics = list(mean  4, sd = 1, n = 3), deltax = 1, verbose = TRUE)
+#' roundMP.mean(fromStatistics = list(mean = 4, sd = 1, n = 3), deltax = 1, verbose = TRUE)
 #'
 #' # get the rounded standard error, the rounded confidence intervals
 #' roundMP.semean(fromData = x1, deltax = 1)
@@ -86,8 +86,8 @@
 #'
 #' # The F ratio and the pooled standard deviation take any number of columns
 #' x3 <- c(2,5,9,11,25)
-#' roundMP.sdpool( fromData = cbind(x1,x2,x3), deltax = 1)
-#' roundMP.F.ratio(fromData = cbind(x1,x2,x3), deltax = 1)
+#' roundMP.sdpool( fromData = list(x1,x2,x3), deltax = 1)
+#' roundMP.F.ratio(fromData = list(x1,x2,x3), deltax = 1)
 #' # the F ratio only works with fromData.
 
 
@@ -105,39 +105,48 @@ MP.getData <- function(dta, number) {
     switch(EXPR = number,
         "1" = {
             # looking for a single vector
-            if (MP.rowLengths(dta) != 1) stop("there is no vector or one-column matrix/dataframe provided... Exiting.")
-            {if (is.vector(dta))          res <- as.matrix(dta)
+            if (MP.rowLengths(dta) != 1) stop("there is no single vector or one-column matrix/dataframe provided... Exiting.")
+            if (is.vector(dta))          res <- as.matrix(dta)
             else if (is.matrix(dta))     res <- as.matrix(dta[,1])
             else if (is.data.frame(dta)) res <- as.matrix(dta[,1])
-            else stop("Weird: unknown data structure... Exiting.") }
+            else if (is.list(dta))       res <- as.matrix(dta[[1]])
+            else stop("Weird: unknown data structure... Exiting.") 
             },
          "2" = {
             # looking for two vectors
             if (MP.rowLengths(dta) != 2) stop("there is no two-column matrix/dataframe provided... Exiting.")
-            {if (is.matrix(dta))          res <- dta[,1:2]
-            else if (is.data.frame(dta)) res <- as.matrix(dta[,1:2])
-            else stop("Weird: unknown data structure... Exiting.") }
+            if (is.matrix(dta))          res <- list(dta[,1],dta[,2])
+            else if (is.data.frame(dta)) res <- list(dta[,1],dta[,2])
+            else if (is.list(dta))       res <- dta
+            else stop("Weird: unknown data structure... Exiting.") 
         },
         "1or2" = {
             # looking for 1 or 2 vectors
             if ((MP.rowLengths(dta) > 2)||(MP.rowLengths(dta) < 1 )) stop("there is not one or two column(s) in the data provided... Exiting.")
             if (MP.rowLengths(dta) == 1) {
-                if (is.vector(dta))          res <- as.matrix(dta)
-                else if (is.matrix(dta))     res <- as.matrix(dta[,1])
-                else if (is.data.frame(dta)) res <- as.matrix(dta[,1])
+                if (is.vector(dta))          res <- list(dta)
+                else if (is.matrix(dta))     res <- list(dta[,1])
+                else if (is.data.frame(dta)) res <- list(dta[,1])
+                else if (is.list(dta))       res <- dta
                 else stop("Weird: unknown data structure... Exiting.") 
             } else {
-                if (is.matrix(dta))          res <- dta
-                else if (is.data.frame(dta)) res <- as.matrix(dta)
+                if (is.matrix(dta))          res <- list(dta[,1],dta[,2])
+                else if (is.data.frame(dta)) res <- list(dta[,1],dta[,2])
+                else if (is.list(dta))       res <- dta
                 else stop("Weird: unknown data structure... Exiting.") 
             }
         },
         "any" = {
             # looking for unspecified number of vectors
-            if (MP.rowLengths(dta) < 1) stop("there is no data provided... Exiting.")
-            {if (is.matrix(dta))          res <- dta
-            else if (is.data.frame(dta)) res <- as.matrix(dta)
-            else stop("Weird: unknown data structure... Exiting.") }
+            if (MP.rowLengths(dta) < 1)  stop("there is no data provided... Exiting.")
+            if (is.matrix(dta)) {
+                res <- list()
+                for(i in 1:MP.rowLengths(dta)) res[[i]] <- dta[,i]
+            } else if (is.data.frame(dta)) {
+                res <- list()
+                for(i in 1:MP.rowLengths(dta)) res[[i]] <- dta[,i]
+            } else if (is.list(dta))         res <- dta
+            else stop("Weird: unknown data structure... Exiting.") 
         },
         stop("Weird: unknown number of columns required...")
     )
@@ -182,13 +191,15 @@ MP.absoluteCentralMoment <- function(x) {
 MP.rowLengths <- function(x) { 
     if (is.null(x)) {
         0
+    } else if (is.list(x)) { #must be done early as lists are also vectors...
+        sum(unlist(lapply(x, MP.rowLengths)))
     } else if (is.vector(x)) {
         1
     } else if (is.matrix(x)) {
         dim(x)[2] 
     } else if (is.data.frame(x)) {
         dim(x)[2]
-    } else {stop("Weird: unknown data structure (not vector and not one-column matrix/data.frame)") }
+    } else stop("Weird: unknown data structure (not vector and not one-column matrix/data.frame) and not list of these...") 
 }
 
 

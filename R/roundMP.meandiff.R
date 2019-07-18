@@ -5,8 +5,8 @@ roundMP.meandiff <- function(deltax = NULL, assumptions = NULL, verbose = FALSE,
     # validation and conversion
     if (is.null(fromStatistics)) {
         dta <- MP.getData(fromData, "2")
-        x1  <- dta[,1]
-        y1  <- dta[,2]
+        x1  <- dta[[1]]
+        y1  <- dta[[2]]
         dmn            <- mean(x1)-mean(y1)
         args           <- list(x1,y1)
         sds            <- unlist(lapply(args, sd))

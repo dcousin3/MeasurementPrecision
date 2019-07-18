@@ -8,8 +8,8 @@ roundMP.sdpool <- function(deltax = NULL, assumptions = TRUE, verbose = FALSE, f
 
     if (is.null(fromStatistics)) {
         dta <- MP.getData(fromData, "any")
-        sds            <- apply(dta, 2, sd)
-        ns             <- apply(dta, 2, length)
+        sds            <- unlist(lapply(dta, sd))
+        ns             <- unlist(lapply(dta, length))
     } else {
         sts  <- MP.vfyStat(fromStatistics, c("sd1","n1","sd2","n2"))
         ngrp <- 1
@@ -30,7 +30,7 @@ roundMP.sdpool <- function(deltax = NULL, assumptions = TRUE, verbose = FALSE, f
     } else {
         fsum       <- 1:length(ns)
         for (i in 1:length(ns)) 
-            fsum[i]<- ns[i] * MP.absoluteCentralMoment(dta[,i])
+            fsum[i]<- ns[i] * MP.absoluteCentralMoment(dta[[i]])
         tsum       <- sum(fsum) 
         prWC       <- tsum * 1/(sum(ns)-length(ns)) * deltax /sdp
         assumptext <- "assumption-free"

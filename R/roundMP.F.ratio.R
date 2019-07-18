@@ -10,9 +10,9 @@ roundMP.F.ratio <- function(deltax = NULL, assumptions = TRUE, verbose = FALSE, 
 
     if (is.null(fromStatistics)) {
         dta  <- MP.getData(fromData, "any")
-        mns  <- apply(dta, 2, mean)
-        sds  <- apply(dta, 2, sd)
-        ns   <- apply(dta, 2, length)
+        mns  <- unlist(lapply(dta, mean))
+        sds  <- unlist(lapply(dta, sd))
+        ns   <- unlist(lapply(dta, length))
     } else {
         stop ("cannot round F ratio statistic from statistics.")
     }
@@ -23,7 +23,7 @@ roundMP.F.ratio <- function(deltax = NULL, assumptions = TRUE, verbose = FALSE, 
     ssa        <- sum(ns * (mns-GM)^2 )
     ss         <- 1:length(ns)
     for (i in 1:length(ns)) {
-      ss[i]    <- sum((dta[,i]-mns[i])^2)      
+      ss[i]    <- sum((dta[[i]]-mns[i])^2)      
     }
     sse        <- sum(ss)
     fratio     <- (ssa / (length(ns)-1)) / (sse/(sum(ns)-length(ns)))
@@ -35,7 +35,7 @@ roundMP.F.ratio <- function(deltax = NULL, assumptions = TRUE, verbose = FALSE, 
     # b. Worst-case intrinsinc precision
     fsum       <- 1:length(ns)
     for (i in 1:length(ns)) {
-        fsum[i]<- sum(abs(ssa/sse*(dta[,i]-mns[i]) -(mns[i]-GM) ))
+        fsum[i]<- sum(abs(ssa/sse*(dta[[i]]-mns[i]) -(mns[i]-GM) ))
     }
     tsum       <- sum(fsum) 
     pr         <- tsum * 2/(length(ns)-1) * deltax /sdp^2
