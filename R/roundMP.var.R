@@ -1,16 +1,21 @@
 # VAR = UNIVARIATE #####################################
 
 #' @export
-roundMP.var <- function(x, deltax = NULL, assumptions = TRUE, verbose = FALSE) {
+roundMP.var <- function(deltax = NULL, assumptions = TRUE, verbose = FALSE, fromStatistics = NULL, fromData = NULL) {
     # validation and conversion
-    if (is.null(deltax)||(length(deltax)>1)) stop("deltax must receive an integer value")
-    if (MP.rowLengths(x) !=1) stop("input not a vector or a one-column matrix/data.frame")
-    x              <- MP.flatten(x)
-    
-    # statistic computations
-    var            <- var(x)
-    n              <- length(x)
+    if (is.null(deltax)||(length(deltax)>1)) stop("deltax must be a single real value")
+    if ((is.null(fromData))&&(is.null(fromStatistics))) stop("you must use fromStatistics or fromData")
 
+    if (is.null(fromStatistics)) {
+        dta <- MP.getData(fromData, "1")
+        var  <- var(dta)
+        n   <- length(dta)
+    } else {
+        sts <- MP.vfyStat(fromStatistics, c("var","n"))
+        var  <- sts[["var"]]
+        n   <- sts[["n"]]
+    }
+    
     # precision computations
     # a. Extrinsinc precision
     prEP           <- sqrt(2 /(n-1)) * var
@@ -27,14 +32,11 @@ roundMP.var <- function(x, deltax = NULL, assumptions = TRUE, verbose = FALSE) {
     # c. Best-case instrinsinc precision
     prBC           <- 2 / sqrt(n-1) * deltax
     rdBC           <- round(var, -log10(prBC)+0.5)
-    # d. Middle-ground intrinsinc precision
-    prMG           <- (prWC/2 + prBC/2)/2
-    rdMG           <- round(var, -log10(prMG)+0.5)
 
     # output results
-    if (verbose) MP.showVerbose("var", var, deltax, prEP, rdEP, prWC, rdWC, prBC, rdBC, prMG, rdMG, assumptext)
-    return(setNames( c(var, rdEP, rdWC, rdBC, rdMG),
-        c("var","EXrounded", "WCrounded", "BCrounded","MGrounded") ) 
+    if (verbose) MP.showVerbose("var", var, deltax, prEP, rdEP, prWC, rdWC, prBC, rdBC, assumptext)
+    return(setNames( c(var, rdEP, rdWC, rdBC),
+        c("var","EXrounded", "WCrounded", "BCrounded") ) 
     )
 }
 

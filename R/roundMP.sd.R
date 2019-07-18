@@ -1,14 +1,20 @@
 # SD = UNIVARIATE ######################################
 
 #' @export
-roundMP.sd <- function(x, deltax = NULL, assumptions = TRUE, verbose = FALSE) {
+roundMP.sd <- function(deltax = NULL, assumptions = TRUE, verbose = FALSE, fromStatistics = NULL, fromData = NULL) {
     # validation and conversion
-    if (is.null(deltax)||(length(deltax)>1)) stop("deltax must receive an integer value")
-    if (MP.rowLengths(x) !=1) stop("input not a vector or a one-column matrix/data.frame")
-    x              <- MP.flatten(x)
-    # statistic computations
-    sd             <- sd(x)
-    n              <- length(x)
+    if (is.null(deltax)||(length(deltax)>1)) stop("deltax must be a single real value")
+    if ((is.null(fromData))&&(is.null(fromStatistics))) stop("you must use fromStatistics or fromData")
+
+    if (is.null(fromStatistics)) {
+        dta <- MP.getData(fromData, "1")
+        sd  <- sd(dta)
+        n   <- length(dta)
+    } else {
+        sts <- MP.vfyStat(fromStatistics, c("sd","n"))
+        sd  <- sts[["sd"]]
+        n   <- sts[["n"]]
+    }
 
     # precision computations
     # a. Extrinsinc precision
@@ -26,14 +32,11 @@ roundMP.sd <- function(x, deltax = NULL, assumptions = TRUE, verbose = FALSE) {
     # c. Best-case instrinsinc precision
     prBC           <- deltax/sqrt(n-1)
     rdBC           <- round(sd, -log10(prBC)+0.5)
-    # d. Middle-ground intrinsinc precision
-    prMG           <- (prWC/2 + prBC/2)/2
-    rdMG           <- round(sd, -log10(prMG)+0.5)
 
     # output results
-    if (verbose) MP.showVerbose("sd", sd, deltax, prEP, rdEP, prWC, rdWC, prBC, rdBC, prMG, rdMG, assumptext)
-    return(setNames( c(sd, rdEP, rdWC, rdBC, rdMG),
-        c("sd","EXrounded", "WCrounded", "BCrounded","MGrounded") ) 
+    if (verbose) MP.showVerbose("sd", sd, deltax, prEP, rdEP, prWC, rdWC, prBC, rdBC, assumptext)
+    return(setNames( c(sd, rdEP, rdWC, rdBC),
+        c("sd","EXrounded", "WCrounded", "BCrounded") ) 
     )
 }
 

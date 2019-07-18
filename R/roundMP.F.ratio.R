@@ -3,30 +3,27 @@
 # as well as the standard error of an F ratio
 
 #' @export
-roundMP.F.ratio <- function(..., deltax = NULL, assumptions = TRUE, verbose = FALSE) {
+roundMP.F.ratio <- function(deltax = NULL, assumptions = TRUE, verbose = FALSE, fromStatistics = NULL, fromData = NULL) {
     # validation and conversion
-    if (is.null(deltax)||(length(deltax)>1)) stop("deltax must receive an integer value")
-    args      <- list( ... )
-    args[sapply(args, is.null)] <- NULL  # removing nulls
-    if (!length(args)) stop("F.ratio needs at least one vector argument")
-    args       <- lapply(args, as.matrix)
-    # unpack all the columns into a single list of columns
-    args       <- c(lapply( args,
-        function(part) as.vector(split(part, col(part)))
-    ))
-    args       <- unlist(args,recursive = F)
+    if (is.null(deltax)||(length(deltax)>1)) stop("deltax must be a single real value")
+    if ((is.null(fromData))&&(is.null(fromStatistics))) stop("you must use fromStatistics or fromData")
 
-    # statistic computations
-    sds        <- unlist(lapply(args, sd))
-    ns         <- unlist(lapply(args, length))
+    if (is.null(fromStatistics)) {
+        dta  <- MP.getData(fromData, "any")
+        mns  <- apply(dta, 2, mean)
+        sds  <- apply(dta, 2, sd)
+        ns   <- apply(dta, 2, length)
+    } else {
+        stop ("cannot round F ratio statistic from statistics.")
+    }
+    # additional statistic computations
     sdp        <- sqrt(sum((ns - 1) * sds^2)/(sum(ns) - length(ns))) 
-    mns        <- unlist(lapply(args, mean))    
-    GM         <- mean(unlist(args))
+    GM         <- mean(mns)
     sdm        <- sd(mns)
     ssa        <- sum(ns * (mns-GM)^2 )
-    ss         = 1:length(ns)
+    ss         <- 1:length(ns)
     for (i in 1:length(ns)) {
-      ss[i]    <- sum((args[[i]]-mns[i])^2)      
+      ss[i]    <- sum((dta[,i]-mns[i])^2)      
     }
     sse        <- sum(ss)
     fratio     <- (ssa / (length(ns)-1)) / (sse/(sum(ns)-length(ns)))
@@ -38,7 +35,7 @@ roundMP.F.ratio <- function(..., deltax = NULL, assumptions = TRUE, verbose = FA
     # b. Worst-case intrinsinc precision
     fsum       <- 1:length(ns)
     for (i in 1:length(ns)) {
-        fsum[i]<- sum(abs(ssa/sse*(args[[i]]-mns[i]) -(mns[i]-GM) ))
+        fsum[i]<- sum(abs(ssa/sse*(dta[,i]-mns[i]) -(mns[i]-GM) ))
     }
     tsum       <- sum(fsum) 
     pr         <- tsum * 2/(length(ns)-1) * deltax /sdp^2
@@ -48,15 +45,12 @@ roundMP.F.ratio <- function(..., deltax = NULL, assumptions = TRUE, verbose = FA
     # c. Best-case instrinsinc precision
     prBC       <- NA
     rdBC       <- NA
-    # d. Middle-ground intrinsinc precision
-    prMG       <- (prWC/2 + prBC/2)/2
-    rdMG       <- round(fratio, -log10(prMG)+0.5)
 
         
     # output results
-    if (verbose) MP.showVerbose("F.ratio", fratio, deltax, prEP, rdEP, prWC, rdWC, prBC, rdBC, prMG, rdMG, assumptext)
-    return(setNames( c(fratio, rdEP, rdWC, rdBC, rdMG),
-        c("mean","EXrounded", "WCrounded", "BCrounded","MGrounded") ) 
+    if (verbose) MP.showVerbose("F.ratio", fratio, deltax, prEP, rdEP, prWC, rdWC, prBC, rdBC, assumptext)
+    return(setNames( c(fratio, rdEP, rdWC, rdBC),
+        c("F.ratio","EXrounded", "WCrounded", "BCrounded") ) 
     )
 }
 

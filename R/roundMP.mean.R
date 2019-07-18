@@ -1,32 +1,38 @@
 # MEAN = UNIVARIATE ####################################
 
 #' @export
-roundMP.mean <- function(x, deltax = NULL, assumptions = NULL, verbose = FALSE) {
+roundMP.mean <- function(deltax = NULL, assumptions = NULL, verbose = FALSE, fromStatistics = NULL, fromData = NULL) {
     # validation and conversion
-    if (is.null(deltax)||(length(deltax)>1)) stop("deltax must receive an integer value")
-    if (MP.rowLengths(x) !=1) stop("input not a vector or a one-column matrix/data.frame")
-    x          <- MP.flatten(x)
-    # statistic computations
-    mn         <- mean(x)
+    if (is.null(deltax)||(length(deltax)>1)) stop("deltax must be a single real value")
+    if ((is.null(fromData))&&(is.null(fromStatistics))) stop("you must use fromStatistics or fromData")
 
+    if (is.null(fromStatistics)) {
+        dta <- MP.getData(fromData, "1")
+        mn  <- mean(dta)
+        sd  <- sd(dta)
+        n   <- length(dta)
+    } else {
+        sts <- MP.vfyStat(fromStatistics, c("mean","sd","n"))
+        mn  <- sts[["mean"]]
+        sd  <- sts[["sd"]]
+        n   <- sts[["n"]]
+    }
+    
     # precision computations
     # a. Extrinsinc precision
-    prEP       <- sd(x)/sqrt(length(x))
+    prEP       <- sd/sqrt(n)
     rdEP       <- round(mn, -log10(prEP)+0.5)
     # b. Worst-case intrinsinc precision
     prWC       <- deltax * 1.0001 # avoids rounding error
     rdWC       <- round(mn, -log10(prWC)+0.5)
     assumptext <- "assumption-free"
     # c. Best-case instrinsinc precision
-    prBC       <- deltax / sqrt(length(x)) * 1.0001 # avoids rounding error
+    prBC       <- deltax / sqrt(n) * 1.0001 # avoids rounding error
     rdBC       <- round(mn, -log10(prBC)+0.5)
-    # d. Middle-ground intrinsinc precision
-    prMG       <- (prWC/2 + prBC/2)/2
-    rdMG       <- round(mn, -log10(prMG)+0.5)
     
     # output results
-    if (verbose) MP.showVerbose("mean", mn, deltax, prEP, rdEP, prWC, rdWC, prBC, rdBC, prMG, rdMG, assumptext)
-    return(setNames( c(mn, rdEP, rdWC, rdBC, rdMG),
-        c("mean","EXrounded", "WCrounded", "BCrounded","MGrounded") ) 
+    if (verbose) MP.showVerbose("mean", mn, deltax, prEP, rdEP, prWC, rdWC, prBC, rdBC, assumptext)
+    return(setNames( c(mn, rdEP, rdWC, rdBC),
+        c("mean","EXrounded", "WCrounded", "BCrounded") ) 
     )
 }

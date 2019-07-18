@@ -1,19 +1,25 @@
 # MEANDIFF = BIVARIATE #################################
 
 #' @export
-roundMP.meandiff <- function(x, y = NULL, deltax = NULL, assumptions = NULL, verbose = FALSE) {
+roundMP.meandiff <- function(deltax = NULL, assumptions = NULL, verbose = FALSE, fromStatistics = NULL, fromData = NULL) {
     # validation and conversion
-    if (is.null(deltax)||(length(deltax)>1)) stop("deltax must receive an integer value")
-    if (MP.rowLengths(x) !=1) stop("x not a vector or a one-column matrix/data.frame")
-    if (MP.rowLengths(x)+MP.rowLengths(y) !=2) stop("input x and y must be vectors or both one-column matrix/data.frame")
-    x          <- MP.flatten(x)
-    y          <- MP.flatten(y)
-
+    if (is.null(fromStatistics)) {
+        dta <- MP.getData(fromData, "2")
+        x1  <- dta[,1]
+        y1  <- dta[,2]
+        dmn            <- mean(x1)-mean(y1)
+        args           <- list(x1,y1)
+        sds            <- unlist(lapply(args, sd))
+        ns             <- unlist(lapply(args, length))
+    } else {
+        sts  <- MP.vfyStat(fromStatistics, c("mean1","sd1","n1","mean2","sd2","n2"))
+        dmn  <- sts[["mean1"]]-sts[["mean2"]]
+        sds  <- c(sts[["sd1"]],sts[["sd2"]])
+        ns   <- c(sts[["n1"]],sts[["n2"]])
+    }
+    
     # statistic computations
-    dmn        <- mean(x)-mean(y)
-    ns         <- c(length(x), length(y))
     nh         <- 1/mean(1/ns)
-    sds        <- c(sd(x), sd(y))
     sdp        <- sqrt(sum((ns - 1) * sds^2)/(sum(ns) - length(ns))) 
 
     # precision computations
@@ -27,14 +33,11 @@ roundMP.meandiff <- function(x, y = NULL, deltax = NULL, assumptions = NULL, ver
     # c. Best-case instrinsinc precision
     prBC       <- sqrt(2) * deltax / sqrt(nh)
     rdBC       <- round(dmn, -log10(prBC)+0.5)
-    # d. Middle-ground intrinsinc precision
-    prMG       <- (prWC/2 + prBC/2)/2
-    rdMG       <- round(dmn, -log10(prMG)+0.5)
 
     # output results
-    if (verbose) MP.showVerbose("meandiff", dmn, deltax, prEP, rdEP, prWC, rdWC, prBC, rdBC, prMG, rdMG, assumptext)
-    return(setNames( c(dmn, rdEP, rdWC, rdBC, rdMG),
-        c("meandiff","EXrounded", "WCrounded", "BCrounded","MGrounded") ) 
+    if (verbose) MP.showVerbose("meandiff", dmn, deltax, prEP, rdEP, prWC, rdWC, prBC, rdBC, assumptext)
+    return(setNames( c(dmn, rdEP, rdWC, rdBC),
+        c("meandiff","EXrounded", "WCrounded", "BCrounded") ) 
     )
 }
 

@@ -8,51 +8,48 @@
 #' according to the formulas underlying those statistics. 
 #' The descriptive statistics for which an expression of the precision is known
 #' are: 
-#' For univariate statistics: mean, sd (standard deviation),
-#' semean (standard error of the mean), ci (confidence interval),
-#' cohen.d (one-sample Cohen's d, d_1), var (variance), and 
-#' t.test (one-sample t-test);
-#' For bivariate statistics: cohen.d (two-sample Cohen's d, d_p), meandiff 
-#' (mean difference), and t.test (two-sample t-test);
-#' For multivariables: sdpool (pooled standard deviation) and F.ratio 
-#' (only worst-case scenario).
-#' Four scenarios are considered: 
-#' - Extrinsinc precision: precision is estimated
-#' according to a population point of view (uses standard error of the statistic);
-#' - Intrinsinc precision (worst-case): precision is estimated assuming
-#' systematic measurement errors and the maximal impact it can have on the statistic;
-#' - Intrinsinc precision (best-case): precision is estimated assuming non-
-#' systematic measurement errors and the root-mean-squared impact in can have;
-#' - a Middle-ground precision is provided which assumes quasi-systematic
-#' measurement errors weighting equally systematic and non-systematic scenarios.
+#' For univariate statistics: 
+#'   mean, sd (standard deviation),
+#'   semean (standard error of the mean), ci (confidence interval),
+#'   cohen.d (one-sample Cohen's d, d_1), var (variance), 
+#'   t.test (one-sample t-test);
+#' For bivariate statistics: 
+#'   cohen.d (two-sample Cohen's d, d_p), meandiff (mean difference),
+#'   t.test (two-sample t-test);
+#' For multivariables: 
+#'   sdpool (pooled standard deviation), F.ratio (only worst-case scenario).
 #'
-#' @param x           a vector of numbers;
-#' @param y           (optional) a second vector for bivariate statistics;
-#' @param ...         (optional) any number of vectors for multivariate statistics;
-#' @param fct         the summary statistic function between quotes: mean, sd,
-#'                    semean, cohen.d, ci, var, t.test, meandiff, F.ratio, sdpool;
-#' @param deltax      the precision of the instrument;
-#' @param assumptions boolean (TRUE to assume relevant symplifying assumptions);
-#' @param verbose     boolean (TRUE to display a human-readable output);
-#' @param gamma       the coverage level for confidence intervals (default if 
-#'                    omitted 95\%);
-#' @param mu0         for the one-sample cohen.d and one-sample t.test, provide 
-#'                    the mean of reference;
+#' Three scenarios are considered: 
+#' - Extrinsinc precision: precision is estimated
+#'   according to a population point of view (uses standard error of 
+#'   the statistic);
+#' - Intrinsinc precision (worst-case): precision is estimated assuming
+#'   systematic measurement errors and the maximal impact it can have on 
+#'   the statistic;
+#' - Intrinsinc precision (best-case): precision is estimated assuming non-
+#'   systematic measurement errors and the root-mean-squared impact in can have;
+#'
+#' @param fromStatistics  a list of already computed statistics; use if you do not provide fromData;
+#' @param fromData        a vector, a matrix or a dataframe containing raw data; use if you do not provide fromStatistics;
+#' @param deltax          the precision of the instrument;
+#' @param assumptions     boolean (TRUE to assume relevant symplifying assumptions);
+#' @param verbose         boolean (TRUE to display a human-readable output);
+#' @param gamma           for confidence intervals, the coverage level  (default if omitted 95\%);
+#' @param mu0             for the one-sample cohen.d and one-sample t.test, the mean of reference;
 #'
 #' @usage
-#' roundMP         (x, fct, deltax, ...)
-#' roundMP.mean    (x, deltax, ...)
-#' roundMP.sd      (x, deltax, ...)
-#' roundMP.var     (x, deltax, ...)
-#' roundMP.semean  (x, deltax, ...)
-#' roundMP.ci      (x, deltax, gamma, ...)
-#' roundMP.cohen.d (x, deltax, mu0, ...)
-#' roundMP.t.test  (x, deltax, mu0, ...)
-#' roundMP.meandiff(x, y, deltax, ...)
-#' roundMP.cohen.d (x, y, deltax, ...)
-#' roundMP.t.test  (x, y, deltax, ...)
-#' roundMP.sdpool  (x, y, ..., deltax, ...)
-#' roundMP.F.ratio (x, y, ..., deltax, ...)
+#' roundMP.mean    (fromStatistics||fromData, deltax, ...)
+#' roundMP.sd      (fromStatistics||fromData, deltax, ...)
+#' roundMP.var     (fromStatistics||fromData, deltax, ...)
+#' roundMP.semean  (fromStatistics||fromData, deltax, ...)
+#' roundMP.ci      (fromStatistics||fromData, deltax, gamma, ...)
+#' roundMP.cohen.d (fromStatistics||fromData, deltax, mu0, ...)
+#' roundMP.t.test  (fromStatistics||fromData, deltax, mu0, ...)
+#' roundMP.meandiff(fromStatistics||fromData, deltax, ...)
+#' roundMP.cohen.d (fromStatistics||fromData, deltax, ...)
+#' roundMP.t.test  (fromStatistics||fromData, deltax, ...)
+#' roundMP.sdpool  (fromStatistics||fromData, deltax, ...)
+#' roundMP.F.ratio (fromData, deltax, ...)
 #'
 #' @return            the summary statistic and its value rounded based 
 #'                    on the measurement precision
@@ -70,90 +67,95 @@
 #' x1 <- c(3,4,5)
 #'
 #' # get the rounded mean assuming that the instrument is precise to +or- 1
-#' roundMP(x1, 'mean', deltax = 1)
-#' roundMP.mean(x1, deltax = 1)
-#' roundMP.mean(x1, deltax = 1, verbose = TRUE)
+#' roundMP.mean(fromData = x1, deltax = 1)
+#' roundMP.mean(fromStatistics = list(mean  4, sd = 1, n = 3), deltax = 1, verbose = TRUE)
 #'
 #' # get the rounded standard error, the rounded confidence intervals
-#' roundMP.semean(x1, deltax = 1)
-#' roundMP.ci(x1, deltax = 1)
+#' roundMP.semean(fromData = x1, deltax = 1)
+#' roundMP.ci(fromData = x1, deltax = 1)
 #'
 #' # get the rounded mean difference between two vectors;
 #' x2 <- c(5,7,9)
-#' roundMP.meandiff(x1, y = x2, deltax = 1)
+#' roundMP.meandiff(fromData = cbind(x1,x2), deltax = 1)
 #'
 #' # get the rounded F ratio, the rounded Cohen's d, and the rounded t-test
 #' # for the last, do not assume symplifiying assumptions
-#' roundMP.F.ratio(x1, y = x2, deltax = 1)
-#' roundMP.cohen.d(x1, y = x2, deltax = 1)
-#' roundMP.t.test( x1, y = x2, deltax = 1, assumptions = FALSE)
+#' roundMP.F.ratio(fromData = cbind(x1,x2), deltax = 1)
+#' roundMP.cohen.d(fromData = cbind(x1,x2), deltax = 1)
+#' roundMP.t.test( fromData = cbind(x1,x2), deltax = 1, assumptions = FALSE)
 #'
 #' # The F ratio and the pooled standard deviation take any number of columns
 #' x3 <- c(2,5,9,11,25)
-#' roundMP.sdpool( x1, x2, x3, deltax = 1)
-#' roundMP.F.ratio(x1, x2, x3, deltax = 1)
-#'
+#' roundMP.sdpool( fromData = cbind(x1,x2,x3), deltax = 1)
+#' roundMP.F.ratio(fromData = cbind(x1,x2,x3), deltax = 1)
+#' # the F ratio only works with fromData.
 
 
-
-# the code is long because it can be run with vectors, 
-# column matrices or data.frame with a single column...
-
-
-
-#########################################################
-# the wrapper function
-#########################################################
-
-#' @export
-roundMP <- function(
-                x,                  # a vector/matrix/data.frame
-                fct,                # name of the summary statistic
-                deltax,             # the precision of the instrument
-                y           = NULL, # may be used for bivariate statistics
-                assumptions = TRUE, # uses simplifying assumptions?
-                verbose     = FALSE,# provides detailed output?
-                ...                 # some requires extra parameters
-) { 
-    # The list of summary statistics for which the
-    # impact of measurement precision has been found
-    MP.listfcts = list(
-        "univariable"  = c("mean","semean","ci","cohen.d","sd","var","t.test"),
-        "bivariable"   = c("meandiff","cohen.d","t.test"),
-        "multivariable"= c("sdpool", "F.ratio")
-    )
-
-    # check that the function is in the list of known functions
-    if (!(fct %in% unlist(MP.listfcts))) 
-        stop(paste("no known solution for function",fct, "or unknown function"))
-
-    # if so, call the right function based on the shape of the input
-    # and undo data.frame structure
-    m = sapply(MP.listfcts, function(t) fct %in% t )
-    if ((m["univariable"])&&(MP.rowLengths(x)==1)) {
-        do.call(paste('roundMP',fct, sep="."),
-            list(x=x, deltax=deltax, ..., assumptions=assumptions, verbose = verbose) )
-    } else if ((m["bivariable"])&&((MP.rowLengths(x) == 2))) {
-        do.call(paste('roundMP',fct, sep="."),
-            list(x=x[,1], y=x[,2], deltax=deltax, ..., assumptions=assumptions, verbose = verbose) )
-    } else if ((m["bivariable"])&&((MP.rowLengths(x)==1)&&(MP.rowLengths(y)==1))) {
-        do.call(paste('roundMP',fct, sep="."),
-            list(x=x, y=y, deltax=deltax, ..., assumptions=assumptions, verbose = verbose) )    
-    } else if ((m["multivariable"])&&(MP.rowLengths(x)>1)) {
-        do.call(paste('roundMP',fct, sep="."),
-            list(x=x, y=y, ..., deltax=deltax, assumptions=assumptions, verbose = verbose) )        
-    } else {
-        stop("it seems that the number of columns of the data does not match the function... Exiting")
-    }
-}
+# the code is long but it can be run with vectors, 
+# column matrices or data.frames
 
 
 #########################################################
 # some subsidiary functions 
 #########################################################
 
+# extract column(s) from the "fromData" parameter
+# reporting everything into a matrix
+MP.getData <- function(dta, number) {
+    switch(EXPR = number,
+        "1" = {
+            # looking for a single vector
+            if (MP.rowLengths(dta) != 1) stop("there is no vector or one-column matrix/dataframe provided... Exiting.")
+            {if (is.vector(dta))          res <- as.matrix(dta)
+            else if (is.matrix(dta))     res <- as.matrix(dta[,1])
+            else if (is.data.frame(dta)) res <- as.matrix(dta[,1])
+            else stop("Weird: unknown data structure... Exiting.") }
+            },
+         "2" = {
+            # looking for two vectors
+            if (MP.rowLengths(dta) != 2) stop("there is no two-column matrix/dataframe provided... Exiting.")
+            {if (is.matrix(dta))          res <- dta[,1:2]
+            else if (is.data.frame(dta)) res <- as.matrix(dta[,1:2])
+            else stop("Weird: unknown data structure... Exiting.") }
+        },
+        "1or2" = {
+            # looking for 1 or 2 vectors
+            if ((MP.rowLengths(dta) > 2)||(MP.rowLengths(dta) < 1 )) stop("there is not one or two column(s) in the data provided... Exiting.")
+            if (MP.rowLengths(dta) == 1) {
+                if (is.vector(dta))          res <- as.matrix(dta)
+                else if (is.matrix(dta))     res <- as.matrix(dta[,1])
+                else if (is.data.frame(dta)) res <- as.matrix(dta[,1])
+                else stop("Weird: unknown data structure... Exiting.") 
+            } else {
+                if (is.matrix(dta))          res <- dta
+                else if (is.data.frame(dta)) res <- as.matrix(dta)
+                else stop("Weird: unknown data structure... Exiting.") 
+            }
+        },
+        "any" = {
+            # looking for unspecified number of vectors
+            if (MP.rowLengths(dta) < 1) stop("there is no data provided... Exiting.")
+            {if (is.matrix(dta))          res <- dta
+            else if (is.data.frame(dta)) res <- as.matrix(dta)
+            else stop("Weird: unknown data structure... Exiting.") }
+        },
+        stop("Weird: unknown number of columns required...")
+    )
+    res
+}
+
+# verify that the named statistics are in the list 
+# or else issue a message
+MP.vfyStat <- function(statlist, statname) {
+    if (!(all(statname %in% names(statlist))))
+      stop(paste("The list of statistics is incomplete, we need: ", 
+                 paste(statname, collapse = " "), sep = "")
+           )
+    statlist
+}
+
 # show some description of the results
-MP.showVerbose <- function(fct, mn, deltax, prEP, rdEP, prWC, rdWC, prBC, rdBC, prMG, rdMG, assumptxt) {
+MP.showVerbose <- function(fct, mn, deltax, prEP, rdEP, prWC, rdWC, prBC, rdBC, assumptxt) {
     s1<-function() {rep(" ",18-nchar(fct))}
     s2<-function() {rep(" ",5)}
     cat(rep("-",70),"\n",sep="")
@@ -168,9 +170,6 @@ MP.showVerbose <- function(fct, mn, deltax, prEP, rdEP, prWC, rdWC, prBC, rdBC, 
     cat("BEST-CASE INTRINSINC PRECISION: (this result is", assumptxt,")","\n")
     cat("  - precision for ",fct," is:    ",s1(), prBC,"\n",sep="")
     cat("  - rounded ",fct," of input is: ",s1(),rdBC,"\n",sep="")
-    cat("MIDDLE-GROUND PRECISION: (average of the two intrinsinc precision)\n")
-    cat("  - precision for ",fct," is:    ",s1(), prMG,"\n",sep="")
-    cat("  - rounded ",fct," of input is: ",s1(),rdMG,"\n",sep="")
     cat(rep("-",70),"\n",sep="")
 }
 
@@ -192,16 +191,4 @@ MP.rowLengths <- function(x) {
     } else {stop("Weird: unknown data structure (not vector and not one-column matrix/data.frame)") }
 }
 
-# a function that revert to vector whatever the data type containing the column
-MP.flatten <- function(x) {
-    if (is.null(x)) {
-        NULL
-    } else if (is.vector(x)) {
-        x
-    } else if (is.matrix(x)) {
-        as.vector(x) 
-    } else if (is.data.frame(x)) {
-        as.vector(as.matrix(x))
-    } else {stop("Weird: unknown data structure (not vector and not one-column matrix/data.frame)") }
-}
 

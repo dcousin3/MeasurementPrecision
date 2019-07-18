@@ -1,16 +1,23 @@
 #' @export
 
 # CI = UNIVARIATE ######################################
-roundMP.ci <- function(x, deltax = NULL, gamma = 0.95, assumptions = TRUE, verbose = FALSE) {
+roundMP.ci <- function(deltax = NULL, gamma = 0.95, assumptions = TRUE, verbose = FALSE, fromStatistics = NULL, fromData = NULL) {
     # validation and conversion
-    if (is.null(deltax)||(length(deltax)>1)) stop("deltax must receive an integer value")
-    if (MP.rowLengths(x) !=1) stop("input not a vector or a one-column matrix/data.frame")
-    if ((gamma<0)||(gamma>1)) stop("the coverage factor gamma must be between 0 and 1")
-    x              <- MP.flatten(x)
-    # statistic computations
-    mn             <- mean(x)
-    sd             <- sd(x)
-    n              <- length(x)
+    if (is.null(deltax)||(length(deltax)>1)) stop("deltax must be a single real value")
+    if ((is.null(fromData))&&(is.null(fromStatistics))) stop("you must use fromStatistics or fromData")
+
+    if (is.null(fromStatistics)) {
+        dta <- MP.getData(fromData, "1")
+        mn             <- mean(dta)
+        sd             <- sd(dta)
+        n              <- length(dta)
+    } else {
+        sts <- MP.vfyStat(fromStatistics, c("mean","sd","n"))
+        mn  <- sts[["mean"]]
+        sd  <- sts[["sd"]]
+        n   <- sts[["n"]]
+    }
+    # additional statistic computations
     se             <- sd / sqrt(n)
     tc             <- qt(1/2 + gamma/2, n-1)
     ci             <- c(mn-tc*se, mn+tc*se)
@@ -31,14 +38,11 @@ roundMP.ci <- function(x, deltax = NULL, gamma = 0.95, assumptions = TRUE, verbo
     # c. Best-case instrinsinc precision
     prBC           <- deltax/sqrt(n) * sqrt(1+ tc^2 / (n-1) )
     rdBC           <- round(ci, -log10(prBC)+0.5)
-    # d. Middle-ground intrinsinc precision
-    prMG           <- (prWC/2 + prBC/2)/2
-    rdMG           <- round(ci, -log10(prMG)+0.5)
 
     # output results
-    if (verbose) MP.showVerbose("ci", c(ci[1]," ",ci[2]), deltax, prEP, c(rdEP[1]," ",rdEP[2]), prWC, c(rdWC[1]," ",rdWC[2]), prBC, c(rdBC[1]," ",rdBC[2]), prMG, c(rdMG[1]," ",rdMG[2]), assumptext)
-    return(setNames( c(ci, rdEP, rdWC, rdBC, rdMG),
-        c("ci-low","ci-high","EXrounded-lo", "EXrounded-hi", "WCrounded-lo","WCrounded-hi","BCrounded-lo","BCrounded-hi","MGrounded-lo","MGrounded-hi") ) 
+    if (verbose) MP.showVerbose("ci", c(ci[1]," ",ci[2]), deltax, prEP, c(rdEP[1]," ",rdEP[2]), prWC, c(rdWC[1]," ",rdWC[2]), prBC, c(rdBC[1]," ",rdBC[2]), assumptext)
+    return(setNames( c(ci, rdEP, rdWC, rdBC),
+        c("ci-low","ci-high","EXrounded-lo", "EXrounded-hi", "WCrounded-lo","WCrounded-hi","BCrounded-lo","BCrounded-hi") ) 
     )
 }
 
