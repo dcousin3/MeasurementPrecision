@@ -11,8 +11,14 @@ Measurement Precision toolkit for R. This repository contains source code and a 
 \details{
 MeasurementPrecision is a toolkit that computes some basic descriptive 
 statistics but also round them based on the measurement precision deltax.
-The generic function is roundMP(x, fct, deltax, ...) but you can also 
-use the specific functions roundMP.fct(x, deltax, ...).
+The functions are 
+
+roundMP.fct(fromData = x, deltax, ...)  to proceed from data (vector, matrix, or list of vectors)
+
+roundMP.fct(fromStatistics = list(...), deltax, ...) to proceed from descriptive statistics.
+
+where fct is a summary statistic name.
+
 See help(roundMP) for a list of all the functions.
 }
 \keyword{internal}
