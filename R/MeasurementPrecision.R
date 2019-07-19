@@ -122,7 +122,7 @@
 # fake function for help
 ##############################
 
-roundMP <- function()
+roundMP <- function(...)
   cat("type help(roundMP) for a list of the functions in the package.\n")
 
   
@@ -137,10 +137,10 @@ MP.getData <- function(dta, number) {
         "1" = {
             # looking for a single vector
             if (MP.rowLengths(dta) != 1) stop("there is no single vector or one-column matrix/dataframe provided... Exiting.")
-            if (is.vector(dta))          res <- as.matrix(dta)
+            if (is.list(dta))            res <- as.matrix(dta[[1]])
+            else if (is.vector(dta))     res <- as.matrix(dta)
             else if (is.matrix(dta))     res <- as.matrix(dta[,1])
             else if (is.data.frame(dta)) res <- as.matrix(dta[,1])
-            else if (is.list(dta))       res <- as.matrix(dta[[1]])
             else stop("Weird: unknown data structure... Exiting.") 
             },
          "2" = {
@@ -155,10 +155,10 @@ MP.getData <- function(dta, number) {
             # looking for 1 or 2 vectors
             if ((MP.rowLengths(dta) > 2)||(MP.rowLengths(dta) < 1 )) stop("there is not one or two column(s) in the data provided... Exiting.")
             if (MP.rowLengths(dta) == 1) {
-                if (is.vector(dta))          res <- list(dta)
+                if (is.list(dta))            res <- dta
+                else if (is.vector(dta))     res <- list(dta)
                 else if (is.matrix(dta))     res <- list(dta[,1])
                 else if (is.data.frame(dta)) res <- list(dta[,1])
-                else if (is.list(dta))       res <- dta
                 else stop("Weird: unknown data structure... Exiting.") 
             } else {
                 if (is.matrix(dta))          res <- list(dta[,1],dta[,2])
