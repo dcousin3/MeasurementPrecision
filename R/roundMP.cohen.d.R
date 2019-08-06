@@ -51,7 +51,7 @@ roundMP.cohen.d <- function(deltax = NULL, mu0 = NULL, assumptions = TRUE, verbo
     # a. Extrinsinc precision
     prEP           <- sqrt(nu/(nu-2)*2/nh * (1+ g^2 *nh/2)- g^2/J^2)
     rdEP           <- round(g, -log10(prEP * 1.0001)+0.5)
-    # b. Worst-case intrinsinc precision
+    # b. Systematic (worst-case) intrinsinc precision
     if (assumptions) {
         prWC       <- ngrp * deltax / sdp
         assumptext <- "based on the normality assumption, an absence of effect and the homogeneity of variance if two groups"
@@ -65,14 +65,14 @@ roundMP.cohen.d <- function(deltax = NULL, mu0 = NULL, assumptions = TRUE, verbo
         assumptext <- "assumption-free"
     }
     rdWC           <- round(g, -log10(prWC * 1.0001 )+0.5)
-    # c. Best-case instrinsinc precision
+    # c. Non-systematic (best-case) instrinsinc precision
     prBC           <- sqrt(ngrp)/sqrt(nh) *deltax / sdp
     rdBC           <- round(g, -log10(prBC * 1.0001)+0.5)
 
     # output results
     if (verbose) MP.showVerbose("cohen.d(unbs'd)", g, deltax, prEP, rdEP, prWC, rdWC, prBC, rdBC, assumptext)
-    return(setNames( c(g, rdEP, rdWC, rdBC),
-        c("g","EXrounded", "WCrounded", "BCrounded") ) 
-    )
+    res <- setNames( c(g, rdEP, rdWC, rdBC),
+        c("machine.precision","extrinsic","systematic","non.systematic") ) 
+    return(as.data.frame(t(res)))
 }
 

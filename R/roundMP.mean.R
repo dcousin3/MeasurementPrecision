@@ -22,17 +22,17 @@ roundMP.mean <- function(deltax = NULL, assumptions = NULL, verbose = FALSE, fro
     # a. Extrinsinc precision
     prEP       <- sd/sqrt(n)
     rdEP       <- round(mn, -log10(prEP)+0.5)
-    # b. Worst-case intrinsinc precision
+    # b. Systematic (worst-case) intrinsinc precision
     prWC       <- deltax * 1.0001 # avoids rounding error
     rdWC       <- round(mn, -log10(prWC)+0.5)
     assumptext <- "assumption-free"
-    # c. Best-case instrinsinc precision
+    # c. Non-systematic (best-case) instrinsinc precision
     prBC       <- deltax / sqrt(n) * 1.0001 # avoids rounding error
     rdBC       <- round(mn, -log10(prBC)+0.5)
     
     # output results
     if (verbose) MP.showVerbose("mean", mn, deltax, prEP, rdEP, prWC, rdWC, prBC, rdBC, assumptext)
-    return(setNames( c(mn, rdEP, rdWC, rdBC),
-        c("mean","EXrounded", "WCrounded", "BCrounded") ) 
-    )
+    res <- setNames( c(mn, rdEP, rdWC, rdBC),
+        c("machine.precision","extrinsic","systematic","non.systematic") ) 
+    return(as.data.frame(t(res)))
 }

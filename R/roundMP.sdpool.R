@@ -23,7 +23,7 @@ roundMP.sdpool <- function(deltax = NULL, assumptions = TRUE, verbose = FALSE, f
     # a. Extrinsinc precision
     prEP           <- sdp/sqrt(2*(sum(ns)-length(ns)))
     rdEP           <- round(sdp, -log10(prEP)+0.5)
-    # b. Worst-case intrinsinc precision
+    # b. Systematic (worst-case) intrinsinc precision
     if (assumptions) {
         prWC       <- sum(ns)/(sum(ns)-length(ns)) * deltax * sqrt(2/pi)  
         assumptext <- "based on the normality assumption and the homogeneity of variance across groups"
@@ -36,13 +36,13 @@ roundMP.sdpool <- function(deltax = NULL, assumptions = TRUE, verbose = FALSE, f
         assumptext <- "assumption-free"
     }
     rdWC           <- round(sdp, -log10(prWC * 1.0001 )+0.5)
-    # c. Best-case instrinsinc precision
+    # c. Non-systematic (best-case) instrinsinc precision
     prBC           <- deltax / sqrt(sum(ns) - length(ns))
     rdBC           <- round(sdp, -log10(prBC * 1.0001 )+0.5)    
 
     # output results
     if (verbose) MP.showVerbose("sdpool", sdp, deltax, prEP, rdEP, prWC, rdWC, prBC, rdBC, assumptext)
-    return(setNames( c(sdp, rdEP, rdWC, rdBC),
-        c("sdpool","EXrounded", "WCrounded", "BCrounded") ) 
-    )
+    res <- setNames( c(sdp, rdEP, rdWC, rdBC),
+        c("machine.precision","extrinsic","systematic","non.systematic") ) 
+    return(as.data.frame(t(res)))
 }

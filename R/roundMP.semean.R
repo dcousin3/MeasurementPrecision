@@ -21,7 +21,7 @@ roundMP.semean <- function(deltax = NULL, assumptions = TRUE, verbose = FALSE, f
     # a. Extrinsinc precision
     prEP           <- sd/sqrt(2 * n * (n-1) )
     rdEP           <- round(sem, -log10(prEP)+0.5)
-    # b. Worst-case intrinsinc precision
+    # b. Systematic (worst-case) intrinsinc precision
     if (assumptions) {
         prWC       <- (n/(n-1)) * deltax * sqrt(2/pi) / sqrt(n)
         assumptext <- "based on the normality assumption"
@@ -30,14 +30,14 @@ roundMP.semean <- function(deltax = NULL, assumptions = TRUE, verbose = FALSE, f
         assumptext <- "assumption-free"
     }
     rdWC           <- round(sem, -log10(prWC * 1.0001 )+0.5)
-    # c. Best-case instrinsinc precision
+    # c. Non-systematic (best-case) instrinsinc precision
     prBC           <- deltax/sqrt(n * (n-1) )
     rdBC           <- round(sem, -log10(prBC)+0.5)
 
     # output results
     if (verbose) MP.showVerbose("semean", sem, deltax, prEP, rdEP, prWC, rdWC, prBC, rdBC, assumptext)
-    return(setNames( c(sem, rdEP, rdWC, rdBC),
-        c("semean","EXrounded", "WCrounded", "BCrounded") ) 
-    )
+    res <- setNames( c(sem, rdEP, rdWC, rdBC),
+        c("machine.precision","extrinsic","systematic","non.systematic") ) 
+    return(as.data.frame(t(res)))
 }
 

@@ -32,7 +32,7 @@ roundMP.F.ratio <- function(deltax = NULL, assumptions = TRUE, verbose = FALSE, 
     # a. Extrinsinc precision
     prEP       <- NA
     rdEP       <- NA
-    # b. Worst-case intrinsinc precision
+    # b. Systematic (worst-case) intrinsinc precision
     fsum       <- 1:length(ns)
     for (i in 1:length(ns)) {
         fsum[i]<- sum(abs(ssa/sse*(dta[[i]]-mns[i]) -(mns[i]-GM) ))
@@ -42,15 +42,15 @@ roundMP.F.ratio <- function(deltax = NULL, assumptions = TRUE, verbose = FALSE, 
     assumptext <- "assumption-free"
     prWC       <- pr * 1.00001 # avoid rounding errors
     rdWC       <- round(fratio, -log10(prWC)+0.5)
-    # c. Best-case instrinsinc precision
+    # c. Non-systematic (best-case) instrinsinc precision
     prBC       <- NA
     rdBC       <- NA
 
         
     # output results
     if (verbose) MP.showVerbose("F.ratio", fratio, deltax, prEP, rdEP, prWC, rdWC, prBC, rdBC, assumptext)
-    return(setNames( c(fratio, rdEP, rdWC, rdBC),
-        c("F.ratio","EXrounded", "WCrounded", "BCrounded") ) 
-    )
+    res <- setNames( c(fratio, rdEP, rdWC, rdBC),
+        c("machine.precision","extrinsic","systematic","non.systematic") ) 
+    return(as.data.frame(t(res)))
 }
 

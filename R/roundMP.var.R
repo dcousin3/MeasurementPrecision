@@ -20,7 +20,7 @@ roundMP.var <- function(deltax = NULL, assumptions = TRUE, verbose = FALSE, from
     # a. Extrinsinc precision
     prEP           <- sqrt(2 /(n-1)) * var
     rdEP           <- round(var, -log10(prEP)+0.5)
-    # b. Worst-case intrinsinc precision
+    # b. Systematic (worst-case) intrinsinc precision
     if (assumptions) {
         prWC       <- (2*n/(n-1)) * deltax * sqrt(2/pi) * sqrt(var)
         assumptext <- "based on the normality assumption"
@@ -29,14 +29,14 @@ roundMP.var <- function(deltax = NULL, assumptions = TRUE, verbose = FALSE, from
         assumptext <- "assumption-free"
     }
     rdWC           <- round(var, -log10(prWC * 1.0001 )+0.5)
-    # c. Best-case instrinsinc precision
+    # c. Non-systematic (best-case) instrinsinc precision
     prBC           <- 2 / sqrt(n-1) * deltax
     rdBC           <- round(var, -log10(prBC)+0.5)
 
     # output results
     if (verbose) MP.showVerbose("var", var, deltax, prEP, rdEP, prWC, rdWC, prBC, rdBC, assumptext)
-    return(setNames( c(var, rdEP, rdWC, rdBC),
-        c("var","EXrounded", "WCrounded", "BCrounded") ) 
-    )
+    res <- setNames( c(var, rdEP, rdWC, rdBC),
+        c("machine.precision","extrinsic","systematic","non.systematic") ) 
+    return(as.data.frame(t(res)))
 }
 

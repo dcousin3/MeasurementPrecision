@@ -50,7 +50,7 @@ roundMP.t.test <- function(deltax = NULL, mu0 = NULL, assumptions = TRUE, verbos
     # a. Extrinsinc precision
     prEP           <- sqrt(nu/(nu-2)* (1+ ttest^2) - ttest^2/J^2)
     rdEP           <- round(ttest, -log10(prEP * 1.0001 )+0.5)
-    # b. Worst-case intrinsinc precision
+    # b. Systematic (worst-case) intrinsinc precision
     if (assumptions) {
         prWC       <- sqrt(ngrp) * sqrt(nh) * deltax / sdp
         assumptext <- "based on the normality assumption, an absence of effect and the homogeneity of variance if two groups"
@@ -65,14 +65,14 @@ roundMP.t.test <- function(deltax = NULL, mu0 = NULL, assumptions = TRUE, verbos
         assumptext <- "assumption-free"
     }
     rdWC           <- round(ttest, -log10(prWC * 1.0001 )+0.5)
-    # c. Best-case instrinsinc precision
+    # c. Non-systematic (best-case instrinsinc precision
     prBC           <- deltax / sdp
     rdBC           <- round(ttest, -log10(prBC * 1.0001 )+0.5)
 
     # output results
     if (verbose) MP.showVerbose("t.test", ttest, deltax, prEP, rdEP, prWC, rdWC, prBC, rdBC, assumptext)
-    return(setNames( c(ttest, rdEP, rdWC, rdBC),
-        c("t.test","EXrounded", "WCrounded", "BCrounded") ) 
-    )
+    res <- setNames( c(ttest, rdEP, rdWC, rdBC),
+        c("machine.precision","extrinsic","systematic","non.systematic") ) 
+    return(as.data.frame(t(res)))
 }
 

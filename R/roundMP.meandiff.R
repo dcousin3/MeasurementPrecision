@@ -26,18 +26,18 @@ roundMP.meandiff <- function(deltax = NULL, assumptions = NULL, verbose = FALSE,
     # a. Extrinsinc precision
     prEP       <- sqrt(2) * sdp / sqrt(nh) * 1.0001 # avoids rounding error
     rdEP       <- round(dmn, -log10(prEP)+0.5)
-    # b. Worst-case intrinsinc precision
+    # b. Systematic (worst-case) intrinsinc precision
     prWC       <- 2 * deltax * 1.0001 # avoids rounding error
     rdWC       <- round(dmn, -log10(prWC)+0.5)
     assumptext <- "assumption-free"
-    # c. Best-case instrinsinc precision
+    # c. Non-systematic (best-case) instrinsinc precision
     prBC       <- sqrt(2) * deltax / sqrt(nh)
     rdBC       <- round(dmn, -log10(prBC)+0.5)
 
     # output results
     if (verbose) MP.showVerbose("meandiff", dmn, deltax, prEP, rdEP, prWC, rdWC, prBC, rdBC, assumptext)
-    return(setNames( c(dmn, rdEP, rdWC, rdBC),
-        c("meandiff","EXrounded", "WCrounded", "BCrounded") ) 
-    )
+    res <- setNames( c(dmn, rdEP, rdWC, rdBC),
+        c("machine.precision","extrinsic","systematic","non.systematic") ) 
+    return(as.data.frame(t(res)))
 }
 
