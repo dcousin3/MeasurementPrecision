@@ -8,7 +8,7 @@ roundMP.mean    (fromStatistics||fromData, deltax, ...)
 roundMP.sd      (fromStatistics||fromData, deltax, ...)
 roundMP.var     (fromStatistics||fromData, deltax, ...)
 roundMP.semean  (fromStatistics||fromData, deltax, ...)
-roundMP.ci      (fromStatistics||fromData, deltax, gamma, ...)
+roundMP.cimean  (fromStatistics||fromData, deltax, gamma, ...)
 roundMP.cohen.d (fromStatistics||fromData, deltax, mu0, ...)
 roundMP.t.test  (fromStatistics||fromData, deltax, mu0, ...)
 roundMP.meandiff(fromStatistics||fromData, deltax, ...)
@@ -85,7 +85,7 @@ roundMP.mean(fromStatistics = list(mean = 4, sd = 1, n = 3), deltax = 1, verbose
 
 # get the rounded standard error, the rounded confidence intervals
 roundMP.semean(fromData = x1, deltax = 1)
-roundMP.ci(fromData = x1, deltax = 1)
+roundMP.cimean(fromData = x1, deltax = 1)
 
 # get the rounded mean difference between two vectors;
 x2 <- c(5,7,9)

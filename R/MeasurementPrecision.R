@@ -65,7 +65,7 @@
 #' roundMP.sd      (fromStatistics||fromData, deltax, ...)
 #' roundMP.var     (fromStatistics||fromData, deltax, ...)
 #' roundMP.semean  (fromStatistics||fromData, deltax, ...)
-#' roundMP.ci      (fromStatistics||fromData, deltax, gamma, ...)
+#' roundMP.cimean  (fromStatistics||fromData, deltax, gamma, ...)
 #' roundMP.cohen.d (fromStatistics||fromData, deltax, mu0, ...)
 #' roundMP.t.test  (fromStatistics||fromData, deltax, mu0, ...)
 #' roundMP.meandiff(fromStatistics||fromData, deltax, ...)
@@ -95,7 +95,7 @@
 #'
 #' # get the rounded standard error, the rounded confidence intervals
 #' roundMP.semean(fromData = x1, deltax = 1)
-#' roundMP.ci(fromData = x1, deltax = 1)
+#' roundMP.cimean(fromData = x1, deltax = 1)
 #'
 #' # get the rounded mean difference between two vectors;
 #' x2 <- c(5,7,9)
@@ -204,10 +204,10 @@ MP.showVerbose <- function(fct, mn, deltax, prEP, rdEP, prWC, rdWC, prBC, rdBC, 
     cat("EXTRINSINC PRECISION:  (this result is based on the standard error of the",fct,")\n")
     cat("  - precision for ",fct," is:    ",s1(), prEP,"\n",sep="")
     cat("  - rounded ",fct," of input is: ",s1(),rdEP,"\n",sep="")
-    cat("WORST-CASE INTRINSINC PRECISION: (this result is", assumptxt,")","\n")
+    cat("SYSTEMATIC ERROR INTRINSINC PRECISION: (this result is", assumptxt,")","\n")
     cat("  - precision for ",fct," is:    ",s1(), prWC,"\n",sep="")
     cat("  - rounded ",fct," of input is: ",s1(),rdWC,"\n",sep="")
-    cat("BEST-CASE INTRINSINC PRECISION: (this result is", assumptxt,")","\n")
+    cat("NON-SYSTEMATIC ERROR INTRINSINC PRECISION: (this result is", assumptxt,")","\n")
     cat("  - precision for ",fct," is:    ",s1(), prBC,"\n",sep="")
     cat("  - rounded ",fct," of input is: ",s1(),rdBC,"\n",sep="")
     cat(rep("-",70),"\n",sep="")
