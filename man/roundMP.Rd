@@ -97,6 +97,10 @@ roundMP.F.ratio(fromData = cbind(x1,x2), deltax = 1)
 roundMP.cohen.d(fromData = cbind(x1,x2), deltax = 1)
 roundMP.t.test( fromData = cbind(x1,x2), deltax = 1, assumptions = FALSE)
 
+# The t.test function also works with a t.test object
+# produced by the t.test function (i.e., with var.equal=T option)
+res <- t.test(x1, x2, var.equal = T)
+roundMP.t.test(fromObject = res, deltax = 1)
 # The F ratio and the pooled standard deviation take any number of columns
 x3 <- c(2,5,9,11,25)
 roundMP.sdpool( fromData = list(x1,x2,x3), deltax = 1)

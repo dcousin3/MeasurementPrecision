@@ -1,12 +1,17 @@
 # T.TEST = UNIVARIATE or BIVARIATE #####################
 
 #' @export
-roundMP.t.test <- function(deltax = NULL, mu0 = NULL, assumptions = TRUE, verbose = FALSE, fromStatistics = NULL, fromData = NULL) {
+roundMP.t.test <- function(
+                        deltax = NULL, mu0 = NULL, assumptions = TRUE,
+                        verbose = FALSE, fromStatistics = NULL, 
+                        fromData = NULL, fromObject = NULL
+) {
     # validation and conversion
     if (is.null(deltax)||(length(deltax)>1)) stop("deltax must be a single real value")
-    if ((is.null(fromData))&&(is.null(fromStatistics))) stop("you must use fromStatistics or fromData")
+    if ((is.null(fromData))&&(is.null(fromStatistics))&&(is.null(fromObject))) 
+      stop("you must use fromStatistics or fromData or fromObject")
 
-    if (is.null(fromStatistics)) {
+    if (!is.null(fromData)) {
         dta <- MP.getData(fromData, "1or2")
         if(MP.rowLengths(dta) == 1) {
             if(is.null(mu0)) stop ("for one-sample t-test, you must provide a value to mu0")
@@ -24,7 +29,7 @@ roundMP.t.test <- function(deltax = NULL, mu0 = NULL, assumptions = TRUE, verbos
         args[sapply(args, is.null)] <- NULL # removing nulls
         sds            <- unlist(lapply(args, sd))
         ns             <- unlist(lapply(args, length))
-    } else {
+    } else if (!is.null(fromStatistics)) {
         if (is.null(mu0)) {
             sts  <- MP.vfyStat(fromStatistics, c("mean1","sd1","n1","mean2","sd2","n2"))
             ngrp <- 2
@@ -38,7 +43,25 @@ roundMP.t.test <- function(deltax = NULL, mu0 = NULL, assumptions = TRUE, verbos
             sds  <- sts[["sd"]]
             ns   <- sts[["n"]]        
         }
+    } else {
+        if (class(fromObject)=="htest") {
+            if (fromObject$method == " Two Sample t-test") {
+                ngrp <- 2
+                dmn  <- fromObject$estimate[1] - fromObject$estimate[2]
+                sds  <- c(fromObject$sds[1], fromObject$sds[2])
+                ns   <- c(fromObject$ss[1], fromObject$ss[2])
+            } else if (fromObject$method == "One Sample t-test") {
+                ngrp <- 1
+                dmn  <- fromObject$estimate[1] - mu0
+                sds  <- fromObject$sds[1]
+                ns   <- fromObject$ss[1]
+            
+            } else 
+                stop("Not a regular t.test object (no Welch test accepted)")
+        } else 
+            stop("Not an adequate object passed to fromObject")
     }
+    
     # additional statistic computations
     sdp            <- sqrt(sum((ns - 1) * sds^2)/(sum(ns) - length(ns))) 
     nh             <- 1/mean(1/ns)
@@ -76,3 +99,31 @@ roundMP.t.test <- function(deltax = NULL, mu0 = NULL, assumptions = TRUE, verbos
     return(as.data.frame(t(res)))
 }
 
+
+# Because the object htest returned by t.test does not contain
+# all the relevant information, we hack this function.
+t.test.old = stats::t.test
+t.test.new <- function(x, y = NULL,
+       alternative = c("two.sided", "less", "greater"),
+       mu = 0, paired = FALSE, var.equal = FALSE,
+       conf.level = 0.95, ...
+) {
+    # run the t.test as requested
+    temp <- t.test.old(x, y, alternative, mu, paired, var.equal, conf.level,...)
+    
+    # add  attributes ss and sds to the object for true t tests
+    if ((var.equal == TRUE)&(paired == FALSE)) {
+        if (is.null(y)) {
+            temp$ss  <- length(x)
+            temp$sds <- sd(x)
+        } else {
+            temp$ss  <- c(length(x), length(y))
+            temp$sds <- c(sd(x), sd(y))        
+        }
+    }
+    temp
+}
+
+unlockBinding("t.test", as.environment("package:stats"))
+assign("t.test", t.test.new, as.environment("package:stats"))
+lockBinding("t.test", as.environment("package:stats"))
