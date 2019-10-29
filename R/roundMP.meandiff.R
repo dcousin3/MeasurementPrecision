@@ -38,6 +38,6 @@ roundMP.meandiff <- function(deltax = NULL, assumptions = NULL, verbose = FALSE,
     if (verbose) MP.showVerbose("meandiff", dmn, deltax, prEP, rdEP, prWC, rdWC, prBC, rdBC, assumptext)
     res <- setNames( c(dmn, rdEP, rdWC, rdBC),
         c("machine.precision","extrinsic","systematic","non.systematic") ) 
-    return(as.data.frame(t(res)))
+    return(as.data.frame(t(res))[getOption("roundMP.selectedScenario")])
 }
 

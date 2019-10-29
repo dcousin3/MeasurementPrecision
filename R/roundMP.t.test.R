@@ -49,12 +49,12 @@ roundMP.t.test <- function(
                 ngrp <- 2
                 dmn  <- fromObject$estimate[1] - fromObject$estimate[2]
                 sds  <- c(fromObject$sds[1], fromObject$sds[2])
-                ns   <- c(fromObject$ss[1], fromObject$ss[2])
+                ns   <- c(fromObject$ns[1], fromObject$ns[2])
             } else if (fromObject$method == "One Sample t-test") {
                 ngrp <- 1
                 dmn  <- fromObject$estimate[1] - mu0
                 sds  <- fromObject$sds[1]
-                ns   <- fromObject$ss[1]
+                ns   <- fromObject$ns[1]
             
             } else 
                 stop("Not a regular t.test object (no Welch test accepted)")
@@ -96,6 +96,6 @@ roundMP.t.test <- function(
     if (verbose) MP.showVerbose("t.test", ttest, deltax, prEP, rdEP, prWC, rdWC, prBC, rdBC, assumptext)
     res <- setNames( c(ttest, rdEP, rdWC, rdBC),
         c("machine.precision","extrinsic","systematic","non.systematic") ) 
-    return(as.data.frame(t(res)))
+    return(as.data.frame(t(res))[getOption("roundMP.selectedScenario")])
 }
 

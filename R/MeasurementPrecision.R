@@ -117,6 +117,14 @@
 #' roundMP.sdpool( fromData = list(x1,x2,x3), deltax = 1)
 #' roundMP.F.ratio(fromData = list(x1,x2,x3), deltax = 1)
 #' # the F ratio only works with fromData.
+#'
+#' # By default, all four scenarios are displayed.
+#' # You can restrict the scenarios displayed with the option
+#' # roundMP.selectedScenario to a sublist of the followings:
+#' # "machine.precision", "extrinsic", "systematic", "non.systematic"
+#' options(roundMP.selectedScenario = c("machine.precision","non.systematic"))
+#' roundMP.t.test( fromData = cbind(x1,x2), deltax = 1)
+#'
 
 
 # the code is long but it can be run with vectors, 

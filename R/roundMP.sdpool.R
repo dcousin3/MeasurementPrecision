@@ -44,5 +44,5 @@ roundMP.sdpool <- function(deltax = NULL, assumptions = TRUE, verbose = FALSE, f
     if (verbose) MP.showVerbose("sdpool", sdp, deltax, prEP, rdEP, prWC, rdWC, prBC, rdBC, assumptext)
     res <- setNames( c(sdp, rdEP, rdWC, rdBC),
         c("machine.precision","extrinsic","systematic","non.systematic") ) 
-    return(as.data.frame(t(res)))
+    return(as.data.frame(t(res))[getOption("roundMP.selectedScenario")])
 }

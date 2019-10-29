@@ -51,6 +51,6 @@ roundMP.F.ratio <- function(deltax = NULL, assumptions = TRUE, verbose = FALSE, 
     if (verbose) MP.showVerbose("F.ratio", fratio, deltax, prEP, rdEP, prWC, rdWC, prBC, rdBC, assumptext)
     res <- setNames( c(fratio, rdEP, rdWC, rdBC),
         c("machine.precision","extrinsic","systematic","non.systematic") ) 
-    return(as.data.frame(t(res)))
+    return(as.data.frame(t(res))[getOption("roundMP.selectedScenario")])
 }
 

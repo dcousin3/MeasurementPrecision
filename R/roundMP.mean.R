@@ -34,5 +34,5 @@ roundMP.mean <- function(deltax = NULL, assumptions = NULL, verbose = FALSE, fro
     if (verbose) MP.showVerbose("mean", mn, deltax, prEP, rdEP, prWC, rdWC, prBC, rdBC, assumptext)
     res <- setNames( c(mn, rdEP, rdWC, rdBC),
         c("machine.precision","extrinsic","systematic","non.systematic") ) 
-    return(as.data.frame(t(res)))
+    return(as.data.frame(t(res))[getOption("roundMP.selectedScenario")])
 }

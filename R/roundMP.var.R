@@ -37,6 +37,6 @@ roundMP.var <- function(deltax = NULL, assumptions = TRUE, verbose = FALSE, from
     if (verbose) MP.showVerbose("var", var, deltax, prEP, rdEP, prWC, rdWC, prBC, rdBC, assumptext)
     res <- setNames( c(var, rdEP, rdWC, rdBC),
         c("machine.precision","extrinsic","systematic","non.systematic") ) 
-    return(as.data.frame(t(res)))
+    return(as.data.frame(t(res))[getOption("roundMP.selectedScenario")])
 }
 

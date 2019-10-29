@@ -44,6 +44,8 @@ roundMP.cimean <- function(deltax = NULL, gamma = 0.95, assumptions = TRUE, verb
     res <- setNames( c(ci, rdEP, rdWC, rdBC),
         c("machine.precision.low","machine.precision.high","extrinsic.low","extrinsic.high",
           "systematic.low","systematic.high","non.systematic.low","non.systematic.high") ) 
-    return(as.data.frame(t(res)))
+    temp <- function(base) {c(paste(base,".low",sep=""), paste(base,".high",sep=""))}
+    cols = unlist(lapply(getOption("roundMP.selectedScenario"), temp))
+    return(as.data.frame(t(res))[cols])
 }
 

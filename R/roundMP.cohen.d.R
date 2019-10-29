@@ -73,6 +73,6 @@ roundMP.cohen.d <- function(deltax = NULL, mu0 = NULL, assumptions = TRUE, verbo
     if (verbose) MP.showVerbose("cohen.d(unbs'd)", g, deltax, prEP, rdEP, prWC, rdWC, prBC, rdBC, assumptext)
     res <- setNames( c(g, rdEP, rdWC, rdBC),
         c("machine.precision","extrinsic","systematic","non.systematic") ) 
-    return(as.data.frame(t(res)))
+    return(as.data.frame(t(res))[getOption("roundMP.selectedScenario")])
 }
 

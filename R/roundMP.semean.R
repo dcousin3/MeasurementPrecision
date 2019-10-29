@@ -38,6 +38,6 @@ roundMP.semean <- function(deltax = NULL, assumptions = TRUE, verbose = FALSE, f
     if (verbose) MP.showVerbose("semean", sem, deltax, prEP, rdEP, prWC, rdWC, prBC, rdBC, assumptext)
     res <- setNames( c(sem, rdEP, rdWC, rdBC),
         c("machine.precision","extrinsic","systematic","non.systematic") ) 
-    return(as.data.frame(t(res)))
+    return(as.data.frame(t(res))[getOption("roundMP.selectedScenario")])
 }
 
