@@ -1,0 +1,141 @@
+---
+title:      "A small R library which computes precision of descriptive statistics from measurement precision"
+subtitle:   'A companion to "How many decimals?"'
+author:     "Denis Cousineau"
+abstract:   This user manual shows how to round commonly-used descriptive statistics from the measurement precision. It accompanies the article "How many decimals? Rounding descriptive statistics based on measurement precision", \textit{Journal of Mathematical Psychology} (submitted).
+date:       "10/01/2020"
+output:     pdf_document
+---
+
+<!-- to compile this document outside of RStudio, run
+  setwd("C:\\Users\\DenisCousineau\\Repositories\\MeasurementPrecision-gitted")
+  rmarkdown::render('UserManual_v0.22.Rmd')
+-->
+
+# Loading the library
+
+The exact computations to round descriptive statistics are found in the main text under Table 1. The equations are all simple; however, there are a lot of formulas to remember. To assist in rounding descriptive statistics, I have designed a small R library called \texttt{MeasurementPrecision} (no space and two capital letters) which resides on GitHub. To upload it, first install the \texttt{devtools} library from CRAN (Wickham, Hester & Chang, 2019). Then prior to the first use, issue the commands
+
+```{r setupA, eval=FALSE}
+devtools::install_github("dcousin3/MeasurementPrecision")
+library(MeasurementPrecision)
+```
+
+On subsequent sessions, you can only use
+
+```{r setupB, include = TRUE}
+library(MeasurementPrecision)
+```
+
+# A basic use
+
+Let's assume the following two sets of observations
+
+```{r init, include = TRUE}
+sample1 <- c(83, 58, 79, 50, 49, 53, 62, 79, 66)
+sample2 <- c(71, 62, 83, 93, 56, 82, 66, 69, 82, 86, 74, 61, 59, 101, 94, 86, 75)
+```
+
+To get a rounded descriptive statistic, use a command named \texttt{roundMP.\textit{statistic}}. For example, to round the mean of the first sample, use:
+
+```{r test1a, include = TRUE, eval = FALSE}
+roundMP.mean(fromData = sample1, deltax = 0.5)
+```
+    
+where \texttt{deltax}, a mandatory argument, is the precision of the instrument. The command returns a one-line data frame with four columns:
+
+```{r test1b, include = TRUE, echo = FALSE, comment = ""}
+roundMP.mean(fromData = sample1, deltax = 0.5)
+```
+
+where \texttt{machine.precision} is the unrounded result, \texttt{extrinsic} is the  extrinsic precision-based rounding; \texttt{systematic} is the result assuming systematic measurement error and \texttt{non.systematic} is the result assuming non-systematic measurement error.
+
+In any of the commands, you can use \texttt{fromData} if you want to specify raw data or \texttt{fromStatistics} to provide already-calculated descriptive statistics (provide them with all the precision you can). For example, 
+
+```{r test2, include = TRUE, eval = FALSE, comment = ""}
+roundMP.mean(
+	fromStatistics = list(mean = 64.333333, sd = 13.20982, n = 9), 
+	deltax = 0.5
+) 
+```
+
+returns the same results as above. If you issue this command with an empty list of statistics, an error message will let you know which statistics are required.
+
+# Getting rounded statistics beyond the mean
+
+You can also round the standard deviation (\texttt{sd}), the standard error of the mean (\texttt{semean}) and the confidence interval of the mean (\texttt{cimean}): 
+
+```{r test3, include = TRUE, echo = TRUE, collapse = FALSE, comment = ""}
+roundMP.sd(fromData = sample1, deltax = 0.5)
+roundMP.semean(fromData = sample1, deltax = 0.5)
+roundMP.cimean(fromData = sample1, deltax = 0.5) 
+```
+
+In \texttt{roundMP.cimean}, add \texttt{gamma = } for a different coverage. For example, \texttt{gamma = 0.80} will round a 80% confidence interval of the mean.
+
+A one-sample t-test requires the null hypothesis for the mean, provided with \texttt{mu0}, for example:
+
+```{r test4, include = TRUE, echo = TRUE, collapse = FALSE, comment = ""}
+roundMP.t.test(fromData = sample2, mu0 = 65, deltax = 0.5)
+````
+
+where 65 kg is the average planetary body weight for humans.
+
+For statistics on two independent samples, you can use
+
+```{r test5, include = TRUE, echo = TRUE, collapse = FALSE, comment = ""}
+roundMP.meandiff(fromData = list(sample2, sample1), deltax = 0.5)
+roundMP.sdpool(fromData = list(sample2, sample1), deltax = 0.5)
+roundMP.cohen.d(fromData = list(sample2, sample1), deltax = 0.5)
+```
+
+The argument \texttt{fromData} accepts vectors, matrices, data frames or a list of vectors (as illustrated here).
+
+The non-systematic estimates are by default obtained from the simplifying assumptions described in Appendix B of the main paper. To use the full expression (non-parametric solution), add \texttt{assumptions = FALSE} to any of the commands, for example
+
+```{r test6, include = TRUE, echo = TRUE, collapse = FALSE, comment = ""}
+roundMP.t.test(
+    fromData = list(sample2, sample1), 
+	deltax=0.5, assumptions = FALSE
+)
+```
+
+Generally, there is not much differences whether the simplified or the full expression are used.
+
+# Specifying the desired scenario as default
+
+By default, all the roundMP functions output 4 different results, following four approaches to rounding: "\texttt{machine.precision}", "\texttt{extrinsic}", "\texttt{systematic}", and "\texttt{non.systematic}". It is possible to select only one or a few scenarios among this list by setting the global option \texttt{roundMP.selectedScenario}. For example, the following will display results only for two scenario (rounding assuming extrinsic and on systematic measurement error):
+
+```{r test7, include = TRUE, echo = TRUE, collapse = FALSE, comment = ""}
+options(roundMP.selectedScenario = c("extrinsic", "systematic"))
+roundMP.mean(fromData = sample1, 0.5)
+```
+
+```{r test7off, include = TRUE, echo = FALSE}
+options(roundMP.selectedScenario = c("machine.precision", "extrinsic", "systematic", "non.systematic"))
+```
+
+# Arguments \texttt{fromData}, \texttt{fromStatistics} and \texttt{fromObject}
+
+Regarding \texttt{t.test}, it is also possible to get a rounded result from a \texttt{t.test} object directly using the argument \texttt{fromObject} instead (instead of \texttt{fromData} or \texttt{fromStatistics}). The input has to contain a t-test, not a Welch test (so use var.equal = TRUE for two-samples): 
+
+```{r test8, include = TRUE, echo = TRUE, collapse = FALSE, comment = ""}
+res <- t.test(sample1, sample2, var.equal = TRUE)
+roundMP.t.test(fromObject = res, deltax = 0.5)
+```
+
+Note that the library \texttt{MeasurementPrecision} must be loaded prior to use the \texttt{t.test} function as the t.test function is redefined by \texttt{MeasurementPrecision}.
+
+# Detailed output
+
+Finally, to obtain more details on the computations, and see the exact precision, you can add the option \texttt{verbose = TRUE} to any command. For example, 
+
+```{r test9, include = TRUE, echo = TRUE, collapse = FALSE, comment = ""}
+roundMP.mean(fromData = list(sample1), deltax = 0.5, verbose = TRUE)
+```
+
+The results of the last line are identical to the solution provided earlier, but detailed information preceeds the results, showing the exact precision for each scenario, whether a simplifying assumption was used, and the resulting rounded result.
+
+
+
+
