@@ -13,6 +13,7 @@ roundMP.F.ratio <- function(deltax = NULL, assumptions = TRUE, verbose = FALSE, 
         mns  <- unlist(lapply(dta, mean))
         sds  <- unlist(lapply(dta, sd))
         ns   <- unlist(lapply(dta, length))
+        ntilde <- 1/sum(1/ns)*length(ns)
     } else {
         stop ("cannot round F ratio statistic from statistics.")
     }
@@ -20,7 +21,7 @@ roundMP.F.ratio <- function(deltax = NULL, assumptions = TRUE, verbose = FALSE, 
     sdp        <- sqrt(sum((ns - 1) * sds^2)/(sum(ns) - length(ns))) 
     GM         <- mean(mns)
     sdm        <- sd(mns)
-    ssa        <- sum(ns * (mns-GM)^2 )
+    ssa        <- sum(ntilde * (mns-GM)^2 )
     ss         <- 1:length(ns)
     for (i in 1:length(ns)) {
       ss[i]    <- sum((dta[[i]]-mns[i])^2)      
